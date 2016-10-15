@@ -19,18 +19,23 @@ def uniqify(seq):
            checked.append(e)
    return checked
 
-# loop through the data
-for character in characters:
-    if character == '^':
-        current_coords[1] += 1   # north: y-coordinate increases by one
-    elif character == 'v':
-        current_coords[1] -= 1   # south: y-coordinate decreases by one
-    elif character == '>':
-        current_coords[0] += 1   # east: x-coordinate increases by one
-    elif character == '<':
-        current_coords[0] -= 1   # west: x-coordinate decreases by one
+# define a function to change coordinates when moving one step
+def mover(cur_coords, char):
+    if char == '^':
+        cur_coords[1] += 1   # north: y-coordinate increases by one
+    elif char == 'v':
+        cur_coords[1] -= 1   # south: y-coordinate decreases by one
+    elif char == '>':
+        cur_coords[0] += 1   # east: x-coordinate increases by one
+    elif char == '<':
+        cur_coords[0] -= 1   # west: x-coordinate decreases by one
     else:
         print('Error, unexpected input value')
+    return cur_coords
+
+# loop through the data
+for character in characters:
+    mover(current_coords, character)
     visited_coords.append(current_coords[:])    # create a copy of current_coords and add it to visisted_coords
 
 unique_coords = uniqify(visited_coords)     # reduce list of visisted_coords to unique_coords
@@ -48,16 +53,7 @@ visited_coords_santa.append([0, 0])  # first coordinates visisted is the startin
 
 # let santa walk
 for santa in instr_santa:
-    if santa == '^':
-        current_coords_santa[1] += 1   # north: y-coordinate increases by one
-    elif santa == 'v':
-        current_coords_santa[1] -= 1   # south: y-coordinate decreases by one
-    elif santa == '>':
-        current_coords_santa[0] += 1   # east: x-coordinate increases by one
-    elif santa == '<':
-        current_coords_santa[0] -= 1   # west: x-coordinate decreases by one
-    else:
-        print('Error, unexpected input value')
+    mover(current_coords_santa, santa)
     visited_coords_santa.append(current_coords_santa[:])    # create a copy of current_coords and add it to visisted_coords
 
 instr_robo_santa = characters[1::2] # robo-santa takes the even instructions
@@ -67,16 +63,7 @@ visited_coords_robo_santa.append([0, 0])  # first coordinates visisted is the st
 
 # let robo-santa walk
 for robo_santa in instr_robo_santa:
-    if robo_santa == '^':
-        current_coords_robo_santa[1] += 1   # north: y-coordinate increases by one
-    elif robo_santa == 'v':
-        current_coords_robo_santa[1] -= 1   # south: y-coordinate decreases by one
-    elif robo_santa == '>':
-        current_coords_robo_santa[0] += 1   # east: x-coordinate increases by one
-    elif robo_santa == '<':
-        current_coords_robo_santa[0] -= 1   # west: x-coordinate decreases by one
-    else:
-        print('Error, unexpected input value')
+    mover(current_coords_robo_santa, robo_santa)
     visited_coords_robo_santa.append(current_coords_robo_santa[:])    # create a copy of current_coords and add it to visisted_coords
 
 combined_visited_coords = visited_coords_santa + visited_coords_robo_santa
