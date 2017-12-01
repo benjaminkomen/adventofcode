@@ -46,7 +46,4 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-#IntelliJ
-*.iml
 .idea
-/target
