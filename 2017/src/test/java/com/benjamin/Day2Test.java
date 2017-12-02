@@ -40,5 +40,4 @@ public class Day2Test {
 
         assertThat(result, is(new int[]{1, 2, 4}));
     }
-
 }

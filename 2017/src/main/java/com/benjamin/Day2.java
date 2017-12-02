@@ -24,39 +24,27 @@ public class Day2 {
      * Compute a checksum from a "spreadsheet" of numbers.
      */
     protected int deelEenA(final String input) {
-
-        int sum = 0;
-
-        final List<int[]> spreadSheet = stringToSpreadsheet(input);
-
-        for (int[] row : spreadSheet) {
-            int max = Arrays.stream(row).max().orElseThrow(() -> new IllegalStateException("Stream is empty!"));
-            int min = Arrays.stream(row).min().orElseThrow(() -> new IllegalStateException("Stream is empty!"));
-            sum += max - min;
-        }
-
-        return sum;
+        return stringToSpreadsheet(input).stream()
+                .map(row -> {
+                    int max = Arrays.stream(row).max().orElse(0);
+                    int min = Arrays.stream(row).min().orElse(0);
+                    return max - min;
+                })
+                .mapToInt(i -> i)
+                .sum();
     }
 
     /**
      * Compute a different checksum from a "spreadsheet" of numbers.
      */
     protected int deelTweeA(final String input) {
-
-        int sum = 0;
-
-        final List<int[]> spreadSheet = stringToSpreadsheet(input);
-
-        for (int[] row : spreadSheet) {
-            int evenDivisionResult = Arrays.stream(row)
-                    .map(i -> evenDivision(row))
-                    .findFirst()
-                    .orElse(0);
-
-            sum += evenDivisionResult;
-        }
-
-        return sum;
+        return stringToSpreadsheet(input).stream()
+                .map(row -> Arrays.stream(row)
+                        .map(i -> evenDivision(row))
+                        .findFirst()
+                        .orElse(0))
+                .mapToInt(i -> i)
+                .sum();
     }
 
     /**
@@ -66,10 +54,10 @@ public class Day2 {
     private int evenDivision(int[] numbers) {
         for (int i = 0; i < numbers.length; i++) {
             int[] otherNumbers = makeOthersArray(numbers, i);
-            for (int j = 0; j < otherNumbers.length; j++) {
-                final int modulo = numbers[i] % otherNumbers[j];
+            for (int otherNumber : otherNumbers) {
+                final int modulo = numbers[i] % otherNumber;
                 if (modulo == 0) {
-                    return numbers[i] / otherNumbers[j];
+                    return numbers[i] / otherNumber;
                 }
             }
         }
