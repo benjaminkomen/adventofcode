@@ -11,7 +11,7 @@ public class Day1 {
     public static void main(String[] args) {
 
         Day1 instance = new Day1();
-        String input = instance.inputRepository.getInput();
+        String input = instance.inputRepository.getInput(1);
 
         System.out.println("The answer to part 1 is: " + instance.deelEenA(input));
         System.out.println("The answer to part 2 is: " + instance.deelTweeA(input));
