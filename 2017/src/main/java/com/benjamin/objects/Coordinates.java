@@ -17,9 +17,41 @@ public class Coordinates {
         // no-args constructor
     }
 
-    public Coordinates(int x, int y) {
+    private Coordinates(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public static Coordinates west(Coordinates coordinates) {
+        return Coordinates.of(coordinates.getX() - 1, coordinates.getY());
+    }
+
+    public static Coordinates northWest(Coordinates coordinates) {
+        return Coordinates.of(coordinates.getX() - 1, coordinates.getY() + 1);
+    }
+
+    public static Coordinates north(Coordinates coordinates) {
+        return Coordinates.of(coordinates.getX(), coordinates.getY() + 1);
+    }
+
+    public static Coordinates northEast(Coordinates coordinates) {
+        return Coordinates.of(coordinates.getX() + 1, coordinates.getY() + 1);
+    }
+
+    public static Coordinates east(Coordinates coordinates) {
+        return Coordinates.of(coordinates.getX() + 1, coordinates.getY());
+    }
+
+    public static Coordinates southEast(Coordinates coordinates) {
+        return Coordinates.of(coordinates.getX() + 1, coordinates.getY() - 1);
+    }
+
+    public static Coordinates south(Coordinates coordinates) {
+        return Coordinates.of(coordinates.getX(), coordinates.getY() - 1);
+    }
+
+    public static Coordinates southWest(Coordinates coordinates) {
+        return Coordinates.of(coordinates.getX() - 1, coordinates.getY() - 1);
     }
 
     @Override
@@ -46,5 +78,9 @@ public class Coordinates {
                 "x=" + x +
                 ", y=" + y +
                 '}';
+    }
+
+    public static Coordinates of(int x, int y) {
+        return new Coordinates(x,y);
     }
 }

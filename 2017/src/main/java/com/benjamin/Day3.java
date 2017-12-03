@@ -1,19 +1,23 @@
 package com.benjamin;
 
+import com.benjamin.enums.Direction;
 import com.benjamin.objects.Coordinates;
+import com.benjamin.objects.Memory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class Day3 {
 
-    private static final int INPUT_DEEL_EEN = 312051;
-    private static final Coordinates ORIGIN = new Coordinates(0, 0);
+    private static final int INPUT = 312051;
+    private static final Coordinates ORIGIN = Coordinates.of(0, 0);
 
     public static void main(String[] args) {
 
         Day3 instance = new Day3();
 
-        System.out.println("The answer to part 1 is: " + instance.deelEenA(INPUT_DEEL_EEN));
+        System.out.println("The answer to part 1 is: " + instance.deelEenA(INPUT));
         System.out.println("The answer to part 2 is: " + instance.deelTweeA());
     }
 
@@ -29,6 +33,78 @@ public class Day3 {
     }
 
     /**
+     *
+     */
+    protected int deelTweeA() {
+        List<Memory> memories = new ArrayList<>();
+        int currentMemoryValue = 1;
+        memories.add(Memory.of(1, getCoordinates(1), currentMemoryValue)); // initial condition
+        int id = 2;
+
+        do {
+            final Coordinates coordinates = getCoordinates(id);
+            currentMemoryValue = computeCurrentMemoryValue(memories, coordinates);
+            memories.add(Memory.of(id, coordinates, currentMemoryValue));
+            id++;
+        } while (currentMemoryValue <= INPUT);
+
+        return currentMemoryValue;
+    }
+
+    private int computeCurrentMemoryValue(List<Memory> memories, Coordinates coordinates) {
+        int valueWest = memories.stream()
+                .filter(m -> m.getCoordinates().equals(Coordinates.west(coordinates)))
+                .map(Memory::getValue)
+                .findFirst()
+                .orElse(0);
+
+        int valueNorthWest = memories.stream()
+                .filter(m -> m.getCoordinates().equals(Coordinates.northWest(coordinates)))
+                .map(Memory::getValue)
+                .findFirst()
+                .orElse(0);
+
+        int valueNorth = memories.stream()
+                .filter(m -> m.getCoordinates().equals(Coordinates.north(coordinates)))
+                .map(Memory::getValue)
+                .findFirst()
+                .orElse(0);
+
+        int valueNorthEast = memories.stream()
+                .filter(m -> m.getCoordinates().equals(Coordinates.northEast(coordinates)))
+                .map(Memory::getValue)
+                .findFirst()
+                .orElse(0);
+
+        int valueEast = memories.stream()
+                .filter(m -> m.getCoordinates().equals(Coordinates.east(coordinates)))
+                .map(Memory::getValue)
+                .findFirst()
+                .orElse(0);
+
+        int valueSouthEast = memories.stream()
+                .filter(m -> m.getCoordinates().equals(Coordinates.southEast(coordinates)))
+                .map(Memory::getValue)
+                .findFirst()
+                .orElse(0);
+
+        int valueSouth = memories.stream()
+                .filter(m -> m.getCoordinates().equals(Coordinates.south(coordinates)))
+                .map(Memory::getValue)
+                .findFirst()
+                .orElse(0);
+
+        int valueSouthWest = memories.stream()
+                .filter(m -> m.getCoordinates().equals(Coordinates.southWest(coordinates)))
+                .map(Memory::getValue)
+                .findFirst()
+                .orElse(0);
+
+        return valueWest + valueNorthWest + valueNorth + valueNorthEast +
+                valueEast + valueSouthEast + valueSouth + valueSouthWest;
+    }
+
+    /**
      * Returns the Coordinates of a given memory location, in a spiral pattern grid.
      */
     private Coordinates getCoordinates(Integer memoryLocation) {
@@ -38,7 +114,7 @@ public class Day3 {
         int y = 0;
         Direction direction = Direction.EAST;
 
-        for (int stepsTaken = 0; stepsTaken < stepsToTake;) {
+        for (int stepsTaken = 0; stepsTaken < stepsToTake; ) {
 
             // walk a given amount of spiralSteps in the x-direction
             for (int spiralStepsTaken = 0; spiralStepsTaken < spriralStepsToTake && stepsTaken < stepsToTake; stepsTaken++, spiralStepsTaken++) {
@@ -59,7 +135,7 @@ public class Day3 {
             spriralStepsToTake++;
         }
 
-        return new Coordinates(x, y);
+        return Coordinates.of(x, y);
     }
 
     /**
@@ -70,53 +146,19 @@ public class Day3 {
                 Math.abs(coordinates.getY() - ORIGIN.getY());
     }
 
-    /**
-     *
-     */
-    protected int deelTweeA() {
-        return 0;
-    }
-
     private int moveXCoordinate(int x, Direction direction) {
         return direction == Direction.EAST
                 ? ++x
                 : direction == Direction.WEST
-                    ? --x
-                    : x;
+                ? --x
+                : x;
     }
 
     private int moveYCoordinate(int y, Direction direction) {
         return direction == Direction.NORTH
                 ? ++y
                 : direction == Direction.SOUTH
-                    ? --y
-                    : y;
-    }
-
-    private enum Direction {
-
-        NORTH,
-        EAST,
-        SOUTH,
-        WEST;
-
-        /**
-         * Given a direction, return what the transition to the next direction is.
-         */
-        public static Direction transition(Direction direction) {
-
-            switch (direction) {
-                case EAST:
-                    return NORTH;
-                case NORTH:
-                    return WEST;
-                case WEST:
-                    return SOUTH;
-                case SOUTH:
-                    return EAST;
-                default:
-                    throw new IllegalStateException("Unknown direction " + direction);
-            }
-        }
+                ? --y
+                : y;
     }
 }
