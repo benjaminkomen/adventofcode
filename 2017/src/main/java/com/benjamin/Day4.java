@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Day4 {
@@ -27,7 +26,7 @@ public class Day4 {
      */
     protected long deelEenA(final String input) {
         return stringToWordLists(input).stream()
-                .filter(list -> list.size() == listToSet(list).size())
+                .filter(list -> list.size() == new HashSet<>(list).size())
                 .count();
     }
 
@@ -52,15 +51,6 @@ public class Day4 {
     }
 
     /**
-     * Returns a set from a given list, removing any duplicates in the process.
-     */
-    private <T> Set<T> listToSet(List<T> list) {
-        Set<T> set = new HashSet<>();
-        set.addAll(list);
-        return set;
-    }
-
-    /**
      * Returns the amount of anagrams in the given list.
      */
     private long countAnagrams(List<String> list) {
@@ -78,17 +68,13 @@ public class Day4 {
      * Returns true if the first string is an anagram of the second string, false otherwise.
      */
     protected boolean isAnagram(String first, String second) {
-        List<Character> charactersOfFirstString = Arrays.stream(first.toLowerCase().split(""))
-                .map(s -> s.charAt(0))
-                .sorted()
-                .collect(Collectors.toList());
+        char[] charactersOfFirstString = first.toCharArray();
+        char[] charactersOfSecondString = second.toCharArray();
 
-        List<Character> charactersOfSecondString = Arrays.stream(second.toLowerCase().split(""))
-                .map(s -> s.charAt(0))
-                .sorted()
-                .collect(Collectors.toList());
+        Arrays.sort(charactersOfFirstString);
+        Arrays.sort(charactersOfSecondString);
 
-        return charactersOfFirstString.equals(charactersOfSecondString);
+        return Arrays.equals(charactersOfFirstString, charactersOfSecondString);
     }
 
     public static <T> T head(@NotNull List<T> list) {
@@ -98,5 +84,4 @@ public class Day4 {
     public static <T> List<T> tail(@NotNull List<T> list) {
         return list.subList(1, list.size());
     }
-
 }
