@@ -39,7 +39,12 @@ public class Day6 {
     }
 
     /**
-     * I don't understand the question??
+     * The hardest part about this part is understanding the question, but the point is that you start computing states
+     * and at some point at index n your reach a state, which is the start of a subloop.
+     * You end computing states when you reach this state at index n AGAIN for the first time. If you would continue to
+     * compute states you would continue in this subloop where you reach this state at index n every m times. The question
+     * thus is, what is this number m?
+     * See also: https://www.reddit.com/r/adventofcode/comments/7hwhw3/2017_day_06_i_did_not_understand_the_second_part/
      */
     protected int deelTweeA(final String input) {
         List<Integer> initialMemoryState = stringToIntegerArray(input);
@@ -51,7 +56,7 @@ public class Day6 {
             List<Integer> newMemoryState = computeNewMemoryState(getLastElementOfList(memoryStates));
 
             if (memoryStates.contains(newMemoryState)) {
-                return loopCounter;
+                return loopCounter - memoryStates.indexOf(newMemoryState) + 1;
             } else {
                 memoryStates.add(newMemoryState);
                 loopCounter++;
