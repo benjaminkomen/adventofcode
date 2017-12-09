@@ -32,16 +32,16 @@ public class Day7Test {
 
     @Test
     public void testDeelEen1() {
-        long result = target.deelEenA(TEST_INPUT);
+        String result = target.deelEenA(TEST_INPUT);
 
-        assertThat(result, is(5L));
+        assertThat(result, is("tknk"));
     }
 
     @Test
     public void testDeelEen2() {
-        long result = target.deelTweeA(TEST_INPUT);
+        int result = target.deelTweeA(TEST_INPUT);
 
-        assertThat(result, is(10L));
+        assertThat(result, is(60));
     }
 
 }
