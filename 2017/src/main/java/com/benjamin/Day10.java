@@ -1,8 +1,8 @@
 package com.benjamin;
 
-import com.benjamin.objects.CircularList;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,14 +19,14 @@ public class Day10 {
     }
 
     /**
-     *
+     * Shuffle lists in a weird pattern and then return the multiplication of the first two elements.
      */
     protected int deelEenA(final String input, List<Integer> list) {
 
         if (list == null) {
             list = Stream.iterate(0, n -> n + 1)
-                    .limit(255)
-                    .collect(Collectors.toCollection(CircularList::new));
+                    .limit(256)
+                    .collect(Collectors.toList());
         }
 
         int currentPosition = 0;
@@ -35,18 +35,24 @@ public class Day10 {
         List<Integer> lengths = stringToIntegers(input);
 
         for (Integer length : lengths) {
-            // reverse subList
-            List<Integer> subListToReverse = list.subList(currentPosition, length);
-            subListToReverse.sort(Comparator.reverseOrder());
+
+            // rotate to zero, so the subList won't have to access indices out of bounds
+            Collections.rotate(list, -currentPosition);
+
+            // reverse the sublist
+            Collections.reverse(list.subList(0, length));
+
+            // rotate back to correctness
+            Collections.rotate(list, currentPosition);
 
             // move current position
-            currentPosition = currentPosition + length + skipSize;
+            currentPosition = (currentPosition + length + skipSize) % list.size();
 
             // increase skipSize
             skipSize++;
         }
 
-        return 0;
+        return list.get(0) * list.get(1); //2162 is too low
     }
 
     /**
