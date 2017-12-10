@@ -135,18 +135,12 @@ public class Day10 {
      * Convert a sparse hash of 256 numbers to a dense hash of 16 numbers.
      */
     private List<Integer> convertSparseHashToDenseHash(List<Integer> list) {
-        List<List<Integer>> listOfLists = new ArrayList<>(list.stream()
+        return new ArrayList<>(list.stream()
                 .collect(Collectors.groupingBy(el -> list.indexOf(el) / 16))
-                .values());
-
-        List<Integer> result = new ArrayList<>();
-
-        for (List<Integer> subList : listOfLists) {
-            final Integer reduced = applyXOR(subList);
-            result.add(reduced);
-        }
-
-        return result;
+                .values())
+                .stream()
+                .map(this::applyXOR)
+                .collect(Collectors.toList());
     }
 
     /**

@@ -1,7 +1,6 @@
 package com.benjamin;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -14,7 +13,6 @@ public class Day10Test {
 
     private static final List<Integer> INTEGER_LIST = new ArrayList<>(List.of(0, 1, 2, 3, 4));
     private static final String INPUT_DEEL1 = "3,4,1,5";
-    private static final String INPUT_DEEL2_0 = "1,2,3";
     private static final String INPUT_DEEL2_1 = "";
     private static final String INPUT_DEEL2_2 = "AoC 2017";
     private static final String INPUT_DEEL2_3 = "1,2,3";
@@ -31,14 +29,6 @@ public class Day10Test {
         int result = target.deelEenA(INPUT_DEEL1, INTEGER_LIST);
 
         assertThat(result, is(12));
-    }
-
-    @Ignore
-    @Test
-    public void testDeelTwee_0() {
-        String result = target.deelTweeA(INPUT_DEEL1, null);
-
-        assertThat(result, is("???"));
     }
 
     @Test
