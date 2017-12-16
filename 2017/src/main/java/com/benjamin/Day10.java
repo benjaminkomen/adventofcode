@@ -17,7 +17,7 @@ public class Day10 extends Day {
         Day10 instance = new Day10();
 
         System.out.println("The answer to part 1 is: " + instance.deelEenA(INPUT, null));
-        System.out.println("The answer to part 2 is: " + instance.deelTweeA(INPUT, null));
+        System.out.println("The answer to part 2 is: " + instance.deelTweeA(INPUT));
     }
 
     /**
@@ -60,13 +60,14 @@ public class Day10 extends Day {
     /**
      * Returns the Knot Hash from an input string.
      */
-    protected String deelTweeA(final String input, List<Integer> list) {
+    protected String deelTweeA(final String input) {
+        return makeKnotHash(input);
+    }
 
-        if (list == null) {
-            list = Stream.iterate(0, n -> n + 1)
-                    .limit(256)
-                    .collect(Collectors.toList());
-        }
+    public String makeKnotHash(String input) {
+        List<Integer> list = Stream.iterate(0, n -> n + 1)
+                .limit(256)
+                .collect(Collectors.toList());
 
         int currentPosition = 0;
         int skipSize = 0;
@@ -99,6 +100,7 @@ public class Day10 extends Day {
         List<Integer> denseHash = convertSparseHashToDenseHash(list);
 
         return convertToHex(denseHash);
+
     }
 
     /**
