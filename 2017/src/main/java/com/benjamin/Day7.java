@@ -65,12 +65,21 @@ public class Day7 {
             program.getChildren().addAll(children);
         }
 
-        final Program unbalancedProgram = programs.stream()
+        // we except to find one unbalanced Program, but actually, if one program is unbalanced,
+        // this has influence on its parents and children as well
+        final List<Program> unbalancedPrograms = programs.stream()
                 .filter(p -> !p.isDiscBalanced())
-                .findAny()
-                .orElse(null);
+                .collect(Collectors.toList());
 
-        return unbalancedProgram.weightNeededToBalanceDisc();
+        if (unbalancedPrograms.size() > 1) {
+            // we can be fairly sure that the deepest child program is the faulty one,
+            // its fault propagates further to its parents
+            // @todo it might be coincidence that the last element of this list is also the deepest nested program
+            // we should keep track of the nesting level and select the program with the heighest nesting level here
+            return unbalancedPrograms.get(unbalancedPrograms.size() - 1).weightNeededToBalanceDisc();
+        } else {
+            return unbalancedPrograms.get(0).weightNeededToBalanceDisc();
+        }
     }
 
     /**
