@@ -41,7 +41,7 @@ public class Day15 {
     }
 
     /**
-     *
+     * The same as part one, but conditionally for 5 million pairs.
      */
     protected int deelTweeA(int seedGeneratorA, int seedGeneratorB) {
         int pairsMatch = 0;
