@@ -1,15 +1,11 @@
 package com.benjamin;
 
-import com.benjamin.repositories.InputRepository;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class Day13 {
-
-    private InputRepository inputRepository = new InputRepository();
+public class Day13 extends Day {
 
     public static void main(String[] args) {
 
@@ -57,6 +53,7 @@ public class Day13 {
 
     /**
      * Returns the minimum amount of picoseonds delay to not get caught.
+     *
      * @deprecated use {@link #deelTweeB(String)}, which is A LOT faster.
      */
     @Deprecated

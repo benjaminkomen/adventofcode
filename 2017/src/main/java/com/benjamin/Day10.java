@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Day10 {
+public class Day10 extends Day {
 
     private static final String INPUT = "102,255,99,252,200,24,219,57,103,2,226,254,1,0,69,216";
 

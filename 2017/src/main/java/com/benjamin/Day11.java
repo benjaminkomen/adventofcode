@@ -1,15 +1,13 @@
 package com.benjamin;
 
 import com.benjamin.objects.HexCoordinates;
-import com.benjamin.repositories.InputRepository;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Day11 {
+public class Day11 extends Day {
 
-    private InputRepository inputRepository = new InputRepository();
     private static final HexCoordinates ORIGIN = HexCoordinates.of(0, 0, 0);
 
     public static void main(String[] args) {

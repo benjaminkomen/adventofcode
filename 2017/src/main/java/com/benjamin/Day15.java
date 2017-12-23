@@ -3,7 +3,7 @@ package com.benjamin;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Day15 {
+public class Day15 extends Day {
 
     private static final int INPUT_GENERATOR_A = 699;
     private static final int INPUT_GENERATOR_B = 124;

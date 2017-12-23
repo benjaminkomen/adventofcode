@@ -1,12 +1,8 @@
 package com.benjamin;
 
-import com.benjamin.repositories.InputRepository;
-
 import java.util.Arrays;
 
-public class Day1 {
-
-    private InputRepository inputRepository = new InputRepository();
+public class Day1 extends Day {
 
     public static void main(String[] args) {
 
@@ -76,7 +72,7 @@ public class Day1 {
         return sum;
     }
 
-    public static int[] combine(int[] a, int[] b){
+    private static int[] combine(int[] a, int[] b){
         int length = a.length + b.length;
         int[] result = new int[length];
         System.arraycopy(a, 0, result, 0, a.length);

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class Day3 {
+public class Day3 extends Day {
 
     private static final int INPUT = 312051;
     private static final Coordinates ORIGIN = Coordinates.of(0, 0);

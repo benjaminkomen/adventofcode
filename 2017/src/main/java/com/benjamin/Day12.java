@@ -1,6 +1,5 @@
 package com.benjamin;
 
-import com.benjamin.repositories.InputRepository;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -8,9 +7,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class Day12 {
+public class Day12 extends Day {
 
-    private InputRepository inputRepository = new InputRepository();
     private List<Day12.Program> programs = new ArrayList<>();
 
     public static void main(String[] args) {

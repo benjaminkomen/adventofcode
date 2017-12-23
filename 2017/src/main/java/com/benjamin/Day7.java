@@ -1,7 +1,5 @@
 package com.benjamin;
 
-import com.benjamin.repositories.InputRepository;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,9 +7,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class Day7 {
+public class Day7 extends Day {
 
-    private InputRepository inputRepository = new InputRepository();
     private List<Program> programs = new ArrayList<>();
 
     public static void main(String[] args) {

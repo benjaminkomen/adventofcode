@@ -1,7 +1,5 @@
 package com.benjamin;
 
-import com.benjamin.repositories.InputRepository;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -10,9 +8,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class Day16 {
+public class Day16 extends Day {
 
-    private InputRepository inputRepository = new InputRepository();
     private static final String SEED = "abcdefghijklmnop";
 
     public static void main(String[] args) {

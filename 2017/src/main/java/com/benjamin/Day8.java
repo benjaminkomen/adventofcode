@@ -1,7 +1,5 @@
 package com.benjamin;
 
-import com.benjamin.repositories.InputRepository;
-
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -13,9 +11,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class Day8 {
+public class Day8 extends Day {
 
-    private InputRepository inputRepository = new InputRepository();
     private Map<String, Integer> registerMap = new HashMap<>();
     private int maxRegisterValue = 0;
 

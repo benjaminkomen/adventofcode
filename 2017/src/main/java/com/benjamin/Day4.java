@@ -1,6 +1,5 @@
 package com.benjamin;
 
-import com.benjamin.repositories.InputRepository;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -8,9 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Day4 {
-
-    private InputRepository inputRepository = new InputRepository();
+public class Day4 extends Day {
 
     public static void main(String[] args) {
 
@@ -77,11 +74,11 @@ public class Day4 {
         return Arrays.equals(charactersOfFirstString, charactersOfSecondString);
     }
 
-    public static <T> T head(@NotNull List<T> list) {
+    private static <T> T head(@NotNull List<T> list) {
         return list.get(0);
     }
 
-    public static <T> List<T> tail(@NotNull List<T> list) {
+    private static <T> List<T> tail(@NotNull List<T> list) {
         return list.subList(1, list.size());
     }
 }

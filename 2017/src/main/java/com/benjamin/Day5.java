@@ -1,12 +1,8 @@
 package com.benjamin;
 
-import com.benjamin.repositories.InputRepository;
-
 import java.util.Arrays;
 
-public class Day5 {
-
-    private InputRepository inputRepository = new InputRepository();
+public class Day5 extends Day {
 
     public static void main(String[] args) {
 
