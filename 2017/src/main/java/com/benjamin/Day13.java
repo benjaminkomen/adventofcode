@@ -17,7 +17,7 @@ public class Day13 {
         String input = instance.inputRepository.getInput(13);
 
         System.out.println("The answer to part 1 is: " + instance.deelEenA(input));
-        System.out.println("The answer to part 2 is: " + instance.deelTweeA(input)); // 56900 is too low
+        System.out.println("The answer to part 2 is: " + instance.deelTweeB(input));
     }
 
     /**
@@ -57,7 +57,9 @@ public class Day13 {
 
     /**
      * Returns the minimum amount of picoseonds delay to not get caught.
+     * @deprecated use {@link #deelTweeB(String)}, which is A LOT faster.
      */
+    @Deprecated
     protected int deelTweeA(final String input) {
         List<Layer> layers = stringToLayerList(input);
         int deepestLayer = layers.stream().map(Layer::getDepth).mapToInt(i -> i).max().orElse(0);
@@ -98,6 +100,49 @@ public class Day13 {
         }
 
         return delay - 1;
+    }
+
+    /**
+     * More optimised way of looking.
+     */
+    protected int deelTweeB(final String input) {
+        List<Layer> layers = stringToLayerList(input);
+        int deepestLayer = layers.stream().map(Layer::getDepth).mapToInt(i -> i).max().orElse(0);
+        boolean caughtSomewhere = true;
+
+        // increase delay and loop until we found a delay for which we are not caught
+        for (int delay = 0; caughtSomewhere; delay++) {
+
+            // for the given delay, check every layer to see if we would be caught there
+            inner:
+            for (int picosecond = 0; picosecond <= deepestLayer; picosecond++) {
+
+                final int currentLayerDepth = picosecond;
+
+                Optional<Layer> currentLayerOptional = layers.stream()
+                        .filter(l -> l.getDepth().equals(currentLayerDepth))
+                        .findAny();
+
+                if (currentLayerOptional.isPresent()) {
+                    Layer currentLayer = currentLayerOptional.get();
+                    int scannerPosition = (picosecond + delay) % (2 * (currentLayer.getRange() - 1));
+
+                    caughtSomewhere = scannerPosition == 0;
+                }
+
+                // if there are e.g. 100 layers, but we are already caught at layer 5, it is not necessary to check any further
+                if (caughtSomewhere) {
+                    break inner;
+                }
+            }
+
+            // at this point we have looped over all the layers for the given delay and we are not caught anywhere,
+            // so we found the correct delay and we can return it!
+            if (!caughtSomewhere) {
+                return delay;
+            }
+        }
+        return 0;
     }
 
     /**

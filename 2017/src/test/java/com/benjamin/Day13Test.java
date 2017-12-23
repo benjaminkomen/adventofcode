@@ -35,4 +35,12 @@ public class Day13Test {
         assertThat(result, is(10));
     }
 
+    @Test
+    public void testDeelTwee2() {
+        target.deelEenA(INPUT);
+        int result = target.deelTweeB(INPUT);
+
+        assertThat(result, is(10));
+    }
+
 }
