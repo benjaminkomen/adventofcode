@@ -1,7 +1,10 @@
 package com.benjamin;
 
+import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -20,7 +23,7 @@ public class Day14 {
     }
 
     /**
-     *
+     * Returns the amount of used squares.
      */
     protected long deelEenA(final String input) {
         return determineHashInputs(input).stream()
@@ -33,13 +36,54 @@ public class Day14 {
     }
 
     /**
-     *
+     * Returns the amount of distinct regions.
      */
-    protected int deelTweeA(final String input) {
-        return 0;
+    protected long deelTweeA(final String input) {
+
+        Map<Integer, Integer> regions = new HashMap<>();
+
+        List<String> lines = determineHashInputs(input).stream()
+                .map(day10::makeKnotHash)
+                .map(this::convertToBitRepresentation)
+                .collect(Collectors.toList());
+
+        int groupCounter = 2; // we start at 2 to distinguish from the zeroes and ones
+
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
+
+            String[] lineArray = line.split("");
+
+            for (int j = 0; j < lineArray.length; j++) {
+                String lineElement = lineArray[j];
+
+                if (Integer.valueOf(lineElement) == 1) {
+
+                    if (i == 0 && Arrays.stream(lineArray).noneMatch(s -> s.equals("2"))) {
+                        // first group
+                        lineArray[j] = String.valueOf(groupCounter);
+                    } else {
+                        groupCounter++;
+                        lineArray[j] = String.valueOf(groupCounter);
+                    }
+                }
+            }
+            lines.set(i, Arrays.asList(lineArray).stream().collect(Collectors.joining("")));
+        }
+
+        return lines.stream()
+                .flatMap(s -> Stream.of(s.split("")))
+                .mapToInt(Integer::valueOf)
+                .max()
+                .orElse(0);
     }
 
     protected String convertToBitRepresentation(String inputString) {
+
+        int count = 0;
+        BigInteger bi = new BigInteger(inputString, 16);
+        count += bi.bitCount();
+
         return Arrays.stream(inputString.toLowerCase().split(""))
                 .collect(StringBuilder::new,
                         (sb, s) -> {

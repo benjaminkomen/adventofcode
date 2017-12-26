@@ -24,6 +24,13 @@ public class Day14Test {
     }
 
     @Test
+    public void testDeelTwee() {
+        long result = target.deelTweeA(INPUT_DEEL1);
+
+        assertThat(result, is(1242L));
+    }
+
+    @Test
     public void testConvertToBitRepresentation() {
 
         String result = target.convertToBitRepresentation("a0c2017");
