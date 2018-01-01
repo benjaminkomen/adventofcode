@@ -10,7 +10,17 @@ import static org.hamcrest.Matchers.is;
 public class Day18Test {
 
     private Day18 target;
-    private static final int INPUT = 65;
+    private static final String INPUT =
+            "set a 1\n" +
+            "add a 2\n" +
+            "mul a a\n" +
+            "mod a 5\n" +
+            "snd a\n" +
+            "set a 0\n" +
+            "rcv a\n" +
+            "jgz a -1\n" +
+            "set a 1\n" +
+            "jgz a -2";
 
     @Before
     public void setup() {
@@ -19,9 +29,9 @@ public class Day18Test {
 
     @Test
     public void testDeelEen1() {
-        String result = target.deelEenA(INPUT);
+        int result = target.deelEenA(INPUT);
 
-        assertThat(result, is(588));
+        assertThat(result, is(4));
     }
 
     @Ignore
