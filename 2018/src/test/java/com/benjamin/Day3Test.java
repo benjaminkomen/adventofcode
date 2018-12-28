@@ -30,6 +30,6 @@ public class Day3Test {
     public void testDeelTwee1() {
         int result = target.deelTweeA(INPUT1);
 
-        assertThat(result, Matchers.is(-1));
+        assertThat(result, Matchers.is(3));
     }
 }

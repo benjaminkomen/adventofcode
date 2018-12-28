@@ -1,9 +1,12 @@
 package com.benjamin;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Day3 extends Day {
 
@@ -12,30 +15,60 @@ public class Day3 extends Day {
         Day3 instance = new Day3();
         String input = instance.inputRepository.getInput(3);
 
-        System.out.println("The answer to part 1 is: " + instance.deelEenA(input));
-        System.out.println("The answer to part 2 is: " + instance.deelTweeA(input));
+        System.out.println("The answer to part 1 is: " + instance.deelEenA(input)); // 108961
+        System.out.println("The answer to part 2 is: " + instance.deelTweeA(input)); // 681
     }
 
     protected int deelEenA(final String input) {
-        List<Claim> claims = Arrays.stream(input.split("\n"))
-                .map(Claim::new)
-                .collect(Collectors.toList());
-
-        Map<Coordinates, Integer> fabric = new HashMap<>();
-
-        for (Claim claim : claims) {
-            claim.coordinatesCovered()
-                    .forEach(c -> fabric.merge(c, 1, (oldVal, newVal) -> oldVal + newVal));
-        }
+        final Map<Coordinates, Set<Integer>> fabric = fillFabricWithClaims(input);
 
         return fabric.entrySet().stream()
-                .filter(e -> e.getValue() > 1)
+                .filter(e -> e.getValue().size() > 1)
                 .map(e -> 1)
                 .reduce(0, (a, b) -> a + b);
     }
 
     protected int deelTweeA(final String input) {
-        return 0;
+        final Map<Coordinates, Set<Integer>> fabric = fillFabricWithClaims(input);
+
+        Set<Integer> claimIdsOfOverlappingClaim = fabric.entrySet().stream()
+                .filter(e -> e.getValue().size() > 1)
+                .flatMap(e -> e.getValue().stream())
+                .collect(Collectors.toSet());
+
+        List<Claim> claims = makeClaims(input);
+
+        return getClaimIdByCoordinates(claims, claimIdsOfOverlappingClaim);
+    }
+
+    @NotNull
+    private Map<Coordinates, Set<Integer>> fillFabricWithClaims(String input) {
+        List<Claim> claims = makeClaims(input);
+
+        Map<Coordinates, Set<Integer>> fabric = new HashMap<>();
+
+        for (Claim claim : claims) {
+            claim.getCoordinates()
+                    .forEach(c -> fabric.merge(c, Set.of(claim.id), (oldVal, newVal) ->
+                            Stream.concat(oldVal.stream(), newVal.stream()).collect(Collectors.toSet()))
+                    );
+        }
+        return fabric;
+    }
+
+    @NotNull
+    private List<Claim> makeClaims(String input) {
+        return Arrays.stream(input.split("\n"))
+                .map(Claim::new)
+                .collect(Collectors.toList());
+    }
+
+    private int getClaimIdByCoordinates(List<Claim> claims, Set<Integer> claimIdsOfOverlappingClaim) {
+        return claims.stream()
+                .map(claim -> claim.id)
+                .filter(claimId -> !claimIdsOfOverlappingClaim.contains(claimId))
+                .findAny()
+                .orElse(0);
     }
 
     private static class Claim {
@@ -45,17 +78,6 @@ public class Day3 extends Day {
         private final int topPosition;
         private final int width;
         private final int height;
-
-        public List<Coordinates> coordinatesCovered() {
-            List<Coordinates> result = new ArrayList<>();
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    result.add(new Coordinates(x + leftPosition, y + topPosition));
-                }
-            }
-
-            return result;
-        }
 
         public Claim() {
             this.id = 0;
@@ -90,6 +112,17 @@ public class Day3 extends Day {
                 this.width = 0;
                 this.height = 0;
             }
+        }
+
+        public List<Coordinates> getCoordinates() {
+            List<Coordinates> result = new ArrayList<>();
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    result.add(new Coordinates(x + leftPosition, y + topPosition));
+                }
+            }
+
+            return result;
         }
     }
 
