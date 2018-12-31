@@ -9,7 +9,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class Day5Test {
 
     private Day5 target;
-    private static final String INPUT1 = "";
+    private static final String INPUT1 = "dabAcCaCBAcCcaDA";
 
     @BeforeEach
     public void setup() {
@@ -20,7 +20,7 @@ public class Day5Test {
     public void testDeelEen1() {
         int result = target.deelEenA(INPUT1);
 
-        assertThat(result, Matchers.is(-1));
+        assertThat(result, Matchers.is(10));
     }
 
     @Test
