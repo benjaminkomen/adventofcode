@@ -21,7 +21,7 @@ public class Day4 extends Day {
         String input = instance.inputRepository.getInput(4);
 
         System.out.println("The answer to part 1 is: " + instance.deelEenA(input)); // 35623
-        System.out.println("The answer to part 2 is: " + instance.deelTweeA(input));
+        System.out.println("The answer to part 2 is: " + instance.deelTweeA(input)); // 23037
     }
 
     protected int deelEenA(final String input) {
@@ -31,6 +31,15 @@ public class Day4 extends Day {
         Integer mostAsleepGuardId = getMostAsleepGuardId(minutesAsleepPerGuardId);
         Integer minuteMostAsleep = getMinuteMostAsleep(minutesAsleepPerGuardId, mostAsleepGuardId);
         return mostAsleepGuardId * minuteMostAsleep;
+    }
+
+    protected int deelTweeA(final String input) {
+        this.records = makeRecords(input);
+        this.records = addMissingGuardIds(this.records);
+        Map<Integer, Map<Integer, Integer>> minutesAsleepPerGuardId = determineMinutesAsleepPerGuardId(this.records);
+        Integer mostFrequentlyOnSameMinuteAsleepGuardId = getMostFrequentlyOnSameMinuteAsleepGuardId(minutesAsleepPerGuardId);
+        Integer minuteMostAsleep = getMinuteMostAsleep(minutesAsleepPerGuardId, mostFrequentlyOnSameMinuteAsleepGuardId);
+        return mostFrequentlyOnSameMinuteAsleepGuardId * minuteMostAsleep;
     }
 
     @NotNull
@@ -117,8 +126,20 @@ public class Day4 extends Day {
                 .orElseThrow(() -> new IllegalStateException("Could not determine minute most asleep"));
     }
 
-    protected int deelTweeA(final String input) {
-        return 0;
+    /**
+     * Calculate the sum of all minutes each guard is asleep, and return the guard ID of the guard with the maximum
+     * amount of minutes asleep.
+     */
+    private Integer getMostFrequentlyOnSameMinuteAsleepGuardId(Map<Integer, Map<Integer, Integer>> minutesAsleepPerGuardId) {
+        Map<Integer, Long> mostFrequentlyOnSameMinuteAsleepPerGuardId = new HashMap<>();
+
+        minutesAsleepPerGuardId.forEach((key, value) -> mostFrequentlyOnSameMinuteAsleepPerGuardId.put(key,
+                value.values().stream().mapToLong(Long::valueOf).max().orElse(0)));
+
+        return mostFrequentlyOnSameMinuteAsleepPerGuardId.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElseThrow(() -> new IllegalStateException("Could not determine minute most asleep"));
     }
 
     private static class Record {
