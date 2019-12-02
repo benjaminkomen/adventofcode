@@ -13,17 +13,33 @@ func main() {
 	scanner := common.ReadLines("./day2/input.txt")
 	inputNumbers := prepareInput(scanner)
 
-	inputNumbers = preprovisionNumbers(inputNumbers)
+	result1 := RunProgram(preprovisionNumbers(inputNumbers, 12, 2))
+	result2 := FindNounAndVerb(19690720)
 
-	result := RunProgram(inputNumbers)
-
-	fmt.Printf("Part 1: number at position 0 is: %d \n", result)
+	fmt.Printf("Part 1: number at position 0 is: %d \n", result1)
+	fmt.Printf("Part 2: 100 * noun + verb is: %d \n", result2)
 
 }
 
-func preprovisionNumbers(numbers []int) []int {
-	numbers[1] = 12
-	numbers[2] = 2
+func FindNounAndVerb(output int) int {
+
+	for noun := 0; noun < 100; noun++ {
+		for verb := 0; verb < 100; verb++ {
+			memory := prepareInput(common.ReadLines("./day2/input.txt"))
+			result := RunProgram(preprovisionNumbers(memory, noun, verb))
+			if result == output {
+				return 100*noun + verb
+			}
+		}
+	}
+
+	fmt.Println("Could not find the correct noun and verb")
+	return 0
+}
+
+func preprovisionNumbers(numbers []int, noun int, verb int) []int {
+	numbers[1] = noun
+	numbers[2] = verb
 	return numbers
 }
 

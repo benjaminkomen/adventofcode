@@ -10,3 +10,7 @@ func TestRunProgram(t *testing.T) {
 	assert.Equal(t, 2, RunProgram([]int{2, 4, 4, 5, 99, 0}))
 	assert.Equal(t, 30, RunProgram([]int{1, 1, 1, 4, 99, 5, 6, 0, 99}))
 }
+
+func TestFindNounAndVerb(t *testing.T) {
+	assert.Equal(t, 1202, FindNounAndVerb(3765464))
+}
