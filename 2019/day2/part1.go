@@ -23,10 +23,13 @@ func main() {
 
 func FindNounAndVerb(output int) int {
 
+	memory := prepareInput(common.ReadLines("./day2/input.txt"))
+
 	for noun := 0; noun < 100; noun++ {
 		for verb := 0; verb < 100; verb++ {
-			memory := prepareInput(common.ReadLines("./day2/input.txt"))
-			result := RunProgram(preprovisionNumbers(memory, noun, verb))
+			freshMemory := make([]int, len(memory))
+			copy(freshMemory, memory)
+			result := RunProgram(preprovisionNumbers(freshMemory, noun, verb))
 			if result == output {
 				return 100*noun + verb
 			}
