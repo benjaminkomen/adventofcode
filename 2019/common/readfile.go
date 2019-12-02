@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+// This file is shamelessly copied from my colleague https://github.com/ldej/advent-of-code-2018
+
 func ReadBytes(location string) []byte {
 	bytes, err := ioutil.ReadFile(location)
 	if err != nil {
