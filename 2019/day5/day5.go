@@ -7,14 +7,11 @@ import (
 )
 
 func main() {
-	scanner := common.ReadLines("./day5/input.txt")
-	inputNumbers := common.ToIntSlice(scanner)
-
-	result1 := RunProgram(inputNumbers, 1)
-	//result2 := RunProgram2(inputLower, inputUpper)
+	result1 := RunProgram(common.ToIntSlice(common.ReadLines("./day5/input.txt")), 1)
+	result2 := RunProgram(common.ToIntSlice(common.ReadLines("./day5/input.txt")), 5)
 
 	fmt.Printf("Part 1 is: %d \n", result1)
-	//fmt.Printf("Part 2 is: %d \n", result2)
+	fmt.Printf("Part 2 is: %d \n", result2)
 
 }
 
@@ -120,7 +117,7 @@ outerLoop:
 			var writePosition int
 
 			// determine writePosition
-			// Note: Parameters that an instruction writes to will never be in immediate mode. So in theory modeOfThirdParam should always be 0
+			// Note: Parameters that an instruction writes to will never be in immediate mode. So in theory modeOfFirstParam should always be 0
 			{
 				if modeOfFirstParam == 0 {
 					writePosition = inputNumbers[instructionPointer+1]
@@ -153,6 +150,165 @@ outerLoop:
 			output = inputNumbers[readPosition]
 			fmt.Printf("Output instruction: %d\n", output)
 			instructionPointer = move(instructionPointer, len(inputNumbers), 2)
+		case 5:
+			// Opcode 5 is jump-if-true
+			var firstParameter, secondParameter int
+
+			// determine firstParameter
+			{
+				if modeOfFirstParam == 0 {
+					firstParameter = inputNumbers[instructionPointer+1]
+				} else if modeOfFirstParam == 1 {
+					firstParameter = instructionPointer + 1
+				} else {
+					fmt.Printf("unknown parameterMode %d", modeOfFirstParam)
+					os.Exit(-1)
+				}
+			}
+
+			// determine secondParameter
+			{
+				if modeOfSecondParam == 0 {
+					secondParameter = inputNumbers[instructionPointer+2]
+				} else if modeOfSecondParam == 1 {
+					secondParameter = instructionPointer + 2
+				} else {
+					fmt.Printf("unknown parameterMode %d", modeOfSecondParam)
+					os.Exit(-1)
+				}
+			}
+
+			if inputNumbers[firstParameter] != 0 {
+				instructionPointer = inputNumbers[secondParameter]
+			} else {
+				instructionPointer = move(instructionPointer, len(inputNumbers), 3)
+			}
+		case 6:
+			// Opcode 6 is jump-if-false
+			var firstParameter, secondParameter int
+
+			// determine firstParameter
+			{
+				if modeOfFirstParam == 0 {
+					firstParameter = inputNumbers[instructionPointer+1]
+				} else if modeOfFirstParam == 1 {
+					firstParameter = instructionPointer + 1
+				} else {
+					fmt.Printf("unknown parameterMode %d", modeOfFirstParam)
+					os.Exit(-1)
+				}
+			}
+
+			// determine secondParameter
+			{
+				if modeOfSecondParam == 0 {
+					secondParameter = inputNumbers[instructionPointer+2]
+				} else if modeOfSecondParam == 1 {
+					secondParameter = instructionPointer + 2
+				} else {
+					fmt.Printf("unknown parameterMode %d", modeOfSecondParam)
+					os.Exit(-1)
+				}
+			}
+
+			if inputNumbers[firstParameter] == 0 {
+				instructionPointer = inputNumbers[secondParameter]
+			} else {
+				instructionPointer = move(instructionPointer, len(inputNumbers), 3)
+			}
+
+		case 7:
+			// Opcode 7 is less than
+			var firstParameter, secondParameter, thirdParameter int
+
+			// determine firstParameter
+			{
+				if modeOfFirstParam == 0 {
+					firstParameter = inputNumbers[instructionPointer+1]
+				} else if modeOfFirstParam == 1 {
+					firstParameter = instructionPointer + 1
+				} else {
+					fmt.Printf("unknown parameterMode %d", modeOfFirstParam)
+					os.Exit(-1)
+				}
+			}
+
+			// determine secondParameter
+			{
+				if modeOfSecondParam == 0 {
+					secondParameter = inputNumbers[instructionPointer+2]
+				} else if modeOfSecondParam == 1 {
+					secondParameter = instructionPointer + 2
+				} else {
+					fmt.Printf("unknown parameterMode %d", modeOfSecondParam)
+					os.Exit(-1)
+				}
+			}
+
+			// determine thirdParameter
+			{
+				if modeOfThirdParam == 0 {
+					thirdParameter = inputNumbers[instructionPointer+3]
+				} else if modeOfThirdParam == 1 {
+					thirdParameter = instructionPointer + 3
+				} else {
+					fmt.Printf("unknown parameterMode %d", modeOfThirdParam)
+					os.Exit(-1)
+				}
+			}
+
+			if inputNumbers[firstParameter] < inputNumbers[secondParameter] {
+				inputNumbers[thirdParameter] = 1
+			} else {
+				inputNumbers[thirdParameter] = 0
+			}
+			instructionPointer = move(instructionPointer, len(inputNumbers), 4)
+		case 8:
+			// Opcode 8 is equals
+			var firstParameter, secondParameter, thirdParameter int
+
+			// determine firstParameter
+			{
+				if modeOfFirstParam == 0 {
+					firstParameter = inputNumbers[instructionPointer+1]
+				} else if modeOfFirstParam == 1 {
+					firstParameter = instructionPointer + 1
+				} else {
+					fmt.Printf("unknown parameterMode %d", modeOfFirstParam)
+					os.Exit(-1)
+				}
+			}
+
+			// determine secondParameter
+			{
+				if modeOfSecondParam == 0 {
+					secondParameter = inputNumbers[instructionPointer+2]
+				} else if modeOfSecondParam == 1 {
+					secondParameter = instructionPointer + 2
+				} else {
+					fmt.Printf("unknown parameterMode %d", modeOfSecondParam)
+					os.Exit(-1)
+				}
+			}
+
+			// determine thirdParameter
+			{
+				if modeOfThirdParam == 0 {
+					thirdParameter = inputNumbers[instructionPointer+3]
+				} else if modeOfThirdParam == 1 {
+					thirdParameter = instructionPointer + 3
+				} else {
+					fmt.Printf("unknown parameterMode %d", modeOfThirdParam)
+					os.Exit(-1)
+				}
+			}
+
+			if inputNumbers[firstParameter] == inputNumbers[secondParameter] {
+				inputNumbers[thirdParameter] = 1
+			} else {
+				inputNumbers[thirdParameter] = 0
+			}
+			instructionPointer = move(instructionPointer, len(inputNumbers), 4)
 		case 99:
 			// 99 means that the program is finished and should immediately halt
 			break outerLoop
