@@ -2,8 +2,7 @@ package main
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
+	"github.com/adventofcode/2019/common"
 )
 
 func main() {
@@ -44,12 +43,12 @@ func RunProgram2(inputLower, inputUpper int) int {
 }
 
 func MeetsConditions(number int) bool {
-	numberSliced := intToIntSlice(number)
+	numberSliced := common.IntToIntSlice(number)
 	return TwoSameAdjacentDigits(numberSliced) && DigitsNeverDecrease(numberSliced)
 }
 
 func MeetsConditions2(number int) bool {
-	numberSliced := intToIntSlice(number)
+	numberSliced := common.IntToIntSlice(number)
 	return TwoSameAdjacentDigitsNotPartOfLargerGroup(numberSliced) && DigitsNeverDecrease(numberSliced)
 }
 
@@ -101,18 +100,4 @@ func DigitsNeverDecrease(numberSliced []int) bool {
 		}
 	}
 	return true
-}
-
-func intToIntSlice(number int) []int {
-	str := strconv.Itoa(number)
-	splitStr := strings.Split(str, "")
-
-	var result []int
-
-	for _, strDigit := range splitStr {
-		digit, _ := strconv.Atoi(strDigit)
-		result = append(result, digit)
-	}
-
-	return result
 }

@@ -1,17 +1,14 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/adventofcode/2019/common"
 	"os"
-	"strconv"
-	"strings"
 )
 
 func main() {
 	scanner := common.ReadLines("./day2/input.txt")
-	inputNumbers := prepareInput(scanner)
+	inputNumbers := common.ToIntSlice(scanner)
 
 	result1 := RunProgram(preprovisionNumbers(inputNumbers, 12, 2))
 	result2 := FindNounAndVerb(19690720)
@@ -23,7 +20,7 @@ func main() {
 
 func FindNounAndVerb(output int) int {
 
-	memory := prepareInput(common.ReadLines("./day2/input.txt"))
+	memory := common.ToIntSlice(common.ReadLines("./day2/input.txt"))
 
 	for noun := 0; noun < 100; noun++ {
 		for verb := 0; verb < 100; verb++ {
@@ -73,19 +70,4 @@ func RunProgram(input []int) int {
 	}
 
 	return input[0]
-}
-
-func prepareInput(scanner *bufio.Scanner) []int {
-	var inputNumbers []int
-
-	for scanner.Scan() {
-		input := scanner.Text()
-		inputStrings := strings.Split(input, ",")
-
-		for _, inputString := range inputStrings {
-			inputNumber, _ := strconv.Atoi(inputString)
-			inputNumbers = append(inputNumbers, inputNumber)
-		}
-	}
-	return inputNumbers
 }
