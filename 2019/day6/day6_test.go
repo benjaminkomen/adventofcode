@@ -18,6 +18,20 @@ E)J
 J)K
 K)L`
 
+	testInput2 = `COM)B
+B)C
+C)D
+D)E
+E)F
+B)G
+G)H
+D)I
+E)J
+J)K
+K)L
+K)YOU
+I)SAN`
+
 	sampleInstructions = []Instruction{
 		{
 			subject: "COM",
@@ -67,10 +81,14 @@ K)L`
 )
 
 func TestPrepareInput(t *testing.T) {
-	assert.Equal(t, sampleInstructions, PrepareInput(testInput))
+	assert.Equal(t, sampleInstructions, PrepareInput(testInput, "\n"))
 
 }
 
 func TestRunProgram(t *testing.T) {
 	assert.Equal(t, 42, RunProgram(sampleInstructions))
+}
+
+func TestRunProgram2(t *testing.T) {
+	assert.Equal(t, 4, RunProgram2(PrepareInput(testInput2, "\n")))
 }
