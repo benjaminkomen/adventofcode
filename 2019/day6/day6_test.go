@@ -5,7 +5,8 @@ import (
 	"testing"
 )
 
-var testInput = `COM)B
+var (
+	testInput = `COM)B
 B)C
 C)D
 D)E
@@ -17,9 +18,7 @@ E)J
 J)K
 K)L`
 
-func TestPrepareInput(t *testing.T) {
-
-	expectedInstructions := []Instruction{
+	sampleInstructions = []Instruction{
 		{
 			subject: "COM",
 			orbiter: "B",
@@ -65,11 +64,13 @@ func TestPrepareInput(t *testing.T) {
 			orbiter: "L",
 		},
 	}
+)
 
-	assert.Equal(t, expectedInstructions, PrepareInput(testInput))
+func TestPrepareInput(t *testing.T) {
+	assert.Equal(t, sampleInstructions, PrepareInput(testInput))
 
 }
 
 func TestRunProgram(t *testing.T) {
-
+	assert.Equal(t, 42, RunProgram(sampleInstructions))
 }

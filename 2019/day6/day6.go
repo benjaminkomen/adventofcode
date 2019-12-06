@@ -17,18 +17,10 @@ func main() {
 
 }
 
-func RunProgram(instructions []Instruction) int {
-
-	result := make(map[string]int) // key = subject, value = # of orbits
-
-	// for every instruction:
-	// update the result with the amount of orbits per subject
-
-	for _, instruction := range instructions {
-
-	}
-
-	return 0
+type Node struct {
+	uid       string
+	parentUid string
+	orbits    int
 }
 
 type Instruction struct {
@@ -36,10 +28,66 @@ type Instruction struct {
 	orbiter string
 }
 
+func RunProgram(instructions []Instruction) int {
+	graph := buildGraph(instructions)
+	return countOrbits(graph)
+}
+
+func countOrbits(graph []Node) int {
+	var totalOrbits int
+
+	for _, graphNode := range graph {
+		graphNode.orbits = countParents(graphNode.uid, graph)
+		totalOrbits = totalOrbits + graphNode.orbits
+	}
+
+	return totalOrbits
+}
+
+func buildGraph(instructions []Instruction) []Node {
+	var graph []Node
+
+	for _, instruction := range instructions {
+		node := Node{
+			uid:       instruction.orbiter,
+			parentUid: instruction.subject,
+			orbits:    0,
+		}
+
+		graph = append(graph, node)
+	}
+	return graph
+}
+
+func countParents(nodeUid string, graph []Node) int {
+	var parents int
+	nodeUitToLookFor := nodeUid
+
+	for {
+		node, found := findNodeInGraph(nodeUitToLookFor, graph)
+		if !found {
+			break
+		}
+		parents++
+		nodeUitToLookFor = node.parentUid
+	}
+
+	return parents
+}
+
+func findNodeInGraph(nodeUid string, graph []Node) (Node, bool) {
+	for _, node := range graph {
+		if node.uid == nodeUid {
+			return node, true
+		}
+	}
+	return Node{}, false
+}
+
 func PrepareInput(inputAsStr string) []Instruction {
 	var instructions []Instruction
 
-	lines := strings.Split(inputAsStr, "\n")
+	lines := strings.Split(inputAsStr, common.LineBreak)
 
 	for _, line := range lines {
 		instructionsOnLine := strings.Split(line, ")")
