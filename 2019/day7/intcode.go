@@ -6,14 +6,33 @@ import (
 	"os"
 )
 
-func IntcodeComputer(inputNumbers []int, inputInstructions []int) int {
-	instructionPointer := 0
-	output := 0
-	inputInstructionsPointer := 0
+type IntcodeComputerInstance struct {
+	memory                   []int
+	inputInstructions        []int
+	instructionPointer       int
+	output                   int
+	inputInstructionsPointer int
+}
+
+func createIntcodeComputer(amplifierControllerSoftware []int) IntcodeComputerInstance {
+	freshInput := make([]int, len(amplifierControllerSoftware))
+	copy(freshInput, amplifierControllerSoftware)
+	return IntcodeComputerInstance{
+		memory: freshInput,
+	}
+}
+
+func (vm *IntcodeComputerInstance) Run(inputInstructions []int) (int, bool) {
+	vm.inputInstructions = append(vm.inputInstructions, inputInstructions...)
+	return vm.IntcodeComputer()
+}
+
+// return: output (int) and alreadyDone (bool). This last means we hit case 99.
+func (vm *IntcodeComputerInstance) IntcodeComputer() (int, bool) {
 
 outerLoop:
 	for {
-		opcode, modeOfFirstParam, modeOfSecondParam, modeOfThirdParam := extractInstruction(inputNumbers[instructionPointer])
+		opcode, modeOfFirstParam, modeOfSecondParam, modeOfThirdParam := extractInstruction(vm.memory[vm.instructionPointer])
 
 		switch opcode {
 		case 1:
@@ -23,9 +42,9 @@ outerLoop:
 			// determine readPosition1
 			{
 				if modeOfFirstParam == 0 {
-					readPosition1 = inputNumbers[instructionPointer+1]
+					readPosition1 = vm.memory[vm.instructionPointer+1]
 				} else if modeOfFirstParam == 1 {
-					readPosition1 = instructionPointer + 1
+					readPosition1 = vm.instructionPointer + 1
 				} else {
 					fmt.Printf("unknown parameterMode %d", modeOfFirstParam)
 					os.Exit(-1)
@@ -35,9 +54,9 @@ outerLoop:
 			// determine readPosition2
 			{
 				if modeOfSecondParam == 0 {
-					readPosition2 = inputNumbers[instructionPointer+2]
+					readPosition2 = vm.memory[vm.instructionPointer+2]
 				} else if modeOfSecondParam == 1 {
-					readPosition2 = instructionPointer + 2
+					readPosition2 = vm.instructionPointer + 2
 				} else {
 					fmt.Printf("unknown parameterMode %d", modeOfSecondParam)
 					os.Exit(-1)
@@ -48,18 +67,18 @@ outerLoop:
 			// Note: Parameters that an instruction writes to will never be in immediate mode. So in theory modeOfThirdParam should always be 0
 			{
 				if modeOfThirdParam == 0 {
-					writePosition = inputNumbers[instructionPointer+3]
+					writePosition = vm.memory[vm.instructionPointer+3]
 				} else if modeOfThirdParam == 1 {
-					writePosition = instructionPointer + 3
+					writePosition = vm.instructionPointer + 3
 				} else {
 					fmt.Printf("unknown parameterMode %d", modeOfThirdParam)
 					os.Exit(-1)
 				}
 			}
 
-			inputNumbers[writePosition] = inputNumbers[readPosition1] + inputNumbers[readPosition2]
-			instructionPointer = move(instructionPointer, len(inputNumbers), 4)
-			output = inputNumbers[0]
+			vm.memory[writePosition] = vm.memory[readPosition1] + vm.memory[readPosition2]
+			vm.instructionPointer = move(vm.instructionPointer, len(vm.memory), 4)
+			vm.output = vm.memory[0]
 		case 2:
 			// adds together numbers read from two positions and stores the result in a third position.
 			var readPosition1, readPosition2, writePosition int
@@ -67,9 +86,9 @@ outerLoop:
 			// determine readPosition1
 			{
 				if modeOfFirstParam == 0 {
-					readPosition1 = inputNumbers[instructionPointer+1]
+					readPosition1 = vm.memory[vm.instructionPointer+1]
 				} else if modeOfFirstParam == 1 {
-					readPosition1 = instructionPointer + 1
+					readPosition1 = vm.instructionPointer + 1
 				} else {
 					fmt.Printf("unknown parameterMode %d", modeOfFirstParam)
 					os.Exit(-1)
@@ -79,9 +98,9 @@ outerLoop:
 			// determine readPosition2
 			{
 				if modeOfSecondParam == 0 {
-					readPosition2 = inputNumbers[instructionPointer+2]
+					readPosition2 = vm.memory[vm.instructionPointer+2]
 				} else if modeOfSecondParam == 1 {
-					readPosition2 = instructionPointer + 2
+					readPosition2 = vm.instructionPointer + 2
 				} else {
 					fmt.Printf("unknown parameterMode %d", modeOfSecondParam)
 					os.Exit(-1)
@@ -92,18 +111,18 @@ outerLoop:
 			// Note: Parameters that an instruction writes to will never be in immediate mode. So in theory modeOfThirdParam should always be 0
 			{
 				if modeOfThirdParam == 0 {
-					writePosition = inputNumbers[instructionPointer+3]
+					writePosition = vm.memory[vm.instructionPointer+3]
 				} else if modeOfThirdParam == 1 {
-					writePosition = instructionPointer + 3
+					writePosition = vm.instructionPointer + 3
 				} else {
 					fmt.Printf("unknown parameterMode %d", modeOfThirdParam)
 					os.Exit(-1)
 				}
 			}
 
-			inputNumbers[writePosition] = inputNumbers[readPosition1] * inputNumbers[readPosition2]
-			instructionPointer = move(instructionPointer, len(inputNumbers), 4)
-			output = inputNumbers[0]
+			vm.memory[writePosition] = vm.memory[readPosition1] * vm.memory[readPosition2]
+			vm.instructionPointer = move(vm.instructionPointer, len(vm.memory), 4)
+			vm.output = vm.memory[0]
 		case 3:
 			// Opcode 3 takes a single integer as input and saves it to the position given by its only parameter.
 			var writePosition int
@@ -112,18 +131,23 @@ outerLoop:
 			// Note: Parameters that an instruction writes to will never be in immediate mode. So in theory modeOfFirstParam should always be 0
 			{
 				if modeOfFirstParam == 0 {
-					writePosition = inputNumbers[instructionPointer+1]
+					writePosition = vm.memory[vm.instructionPointer+1]
 				} else if modeOfFirstParam == 1 {
-					writePosition = instructionPointer + 1
+					writePosition = vm.instructionPointer + 1
 				} else {
 					fmt.Printf("unknown parameterMode %d", modeOfFirstParam)
 					os.Exit(-1)
 				}
 			}
 
-			inputNumbers[writePosition] = inputInstructions[inputInstructionsPointer]
-			inputInstructionsPointer++
-			instructionPointer = move(instructionPointer, len(inputNumbers), 2)
+			if vm.inputInstructionsPointer >= len(vm.inputInstructions) {
+				// assumption: just take the last inputInstruction if we have exceeded the length
+				vm.memory[writePosition] = vm.inputInstructions[len(vm.inputInstructions)-1]
+			} else {
+				vm.memory[writePosition] = vm.inputInstructions[vm.inputInstructionsPointer]
+			}
+			vm.inputInstructionsPointer++
+			vm.instructionPointer = move(vm.instructionPointer, len(vm.memory), 2)
 		case 4:
 			// Opcode 4 outputs the value of its only parameter.
 			var readPosition int
@@ -131,18 +155,19 @@ outerLoop:
 			// determine readPosition
 			{
 				if modeOfFirstParam == 0 {
-					readPosition = inputNumbers[instructionPointer+1]
+					readPosition = vm.memory[vm.instructionPointer+1]
 				} else if modeOfFirstParam == 1 {
-					readPosition = instructionPointer + 1
+					readPosition = vm.instructionPointer + 1
 				} else {
 					fmt.Printf("unknown parameterMode %d", modeOfFirstParam)
 					os.Exit(-1)
 				}
 			}
 
-			output = inputNumbers[readPosition]
+			vm.output = vm.memory[readPosition]
+			return vm.output, false
 			//fmt.Printf("Output instruction: %d\n", output)
-			instructionPointer = move(instructionPointer, len(inputNumbers), 2)
+			vm.instructionPointer = move(vm.instructionPointer, len(vm.memory), 2)
 		case 5:
 			// Opcode 5 is jump-if-true
 			var firstParameter, secondParameter int
@@ -150,9 +175,9 @@ outerLoop:
 			// determine firstParameter
 			{
 				if modeOfFirstParam == 0 {
-					firstParameter = inputNumbers[instructionPointer+1]
+					firstParameter = vm.memory[vm.instructionPointer+1]
 				} else if modeOfFirstParam == 1 {
-					firstParameter = instructionPointer + 1
+					firstParameter = vm.instructionPointer + 1
 				} else {
 					fmt.Printf("unknown parameterMode %d", modeOfFirstParam)
 					os.Exit(-1)
@@ -162,19 +187,19 @@ outerLoop:
 			// determine secondParameter
 			{
 				if modeOfSecondParam == 0 {
-					secondParameter = inputNumbers[instructionPointer+2]
+					secondParameter = vm.memory[vm.instructionPointer+2]
 				} else if modeOfSecondParam == 1 {
-					secondParameter = instructionPointer + 2
+					secondParameter = vm.instructionPointer + 2
 				} else {
 					fmt.Printf("unknown parameterMode %d", modeOfSecondParam)
 					os.Exit(-1)
 				}
 			}
 
-			if inputNumbers[firstParameter] != 0 {
-				instructionPointer = inputNumbers[secondParameter]
+			if vm.memory[firstParameter] != 0 {
+				vm.instructionPointer = vm.memory[secondParameter]
 			} else {
-				instructionPointer = move(instructionPointer, len(inputNumbers), 3)
+				vm.instructionPointer = move(vm.instructionPointer, len(vm.memory), 3)
 			}
 		case 6:
 			// Opcode 6 is jump-if-false
@@ -183,9 +208,9 @@ outerLoop:
 			// determine firstParameter
 			{
 				if modeOfFirstParam == 0 {
-					firstParameter = inputNumbers[instructionPointer+1]
+					firstParameter = vm.memory[vm.instructionPointer+1]
 				} else if modeOfFirstParam == 1 {
-					firstParameter = instructionPointer + 1
+					firstParameter = vm.instructionPointer + 1
 				} else {
 					fmt.Printf("unknown parameterMode %d", modeOfFirstParam)
 					os.Exit(-1)
@@ -195,19 +220,19 @@ outerLoop:
 			// determine secondParameter
 			{
 				if modeOfSecondParam == 0 {
-					secondParameter = inputNumbers[instructionPointer+2]
+					secondParameter = vm.memory[vm.instructionPointer+2]
 				} else if modeOfSecondParam == 1 {
-					secondParameter = instructionPointer + 2
+					secondParameter = vm.instructionPointer + 2
 				} else {
 					fmt.Printf("unknown parameterMode %d", modeOfSecondParam)
 					os.Exit(-1)
 				}
 			}
 
-			if inputNumbers[firstParameter] == 0 {
-				instructionPointer = inputNumbers[secondParameter]
+			if vm.memory[firstParameter] == 0 {
+				vm.instructionPointer = vm.memory[secondParameter]
 			} else {
-				instructionPointer = move(instructionPointer, len(inputNumbers), 3)
+				vm.instructionPointer = move(vm.instructionPointer, len(vm.memory), 3)
 			}
 
 		case 7:
@@ -217,9 +242,9 @@ outerLoop:
 			// determine firstParameter
 			{
 				if modeOfFirstParam == 0 {
-					firstParameter = inputNumbers[instructionPointer+1]
+					firstParameter = vm.memory[vm.instructionPointer+1]
 				} else if modeOfFirstParam == 1 {
-					firstParameter = instructionPointer + 1
+					firstParameter = vm.instructionPointer + 1
 				} else {
 					fmt.Printf("unknown parameterMode %d", modeOfFirstParam)
 					os.Exit(-1)
@@ -229,9 +254,9 @@ outerLoop:
 			// determine secondParameter
 			{
 				if modeOfSecondParam == 0 {
-					secondParameter = inputNumbers[instructionPointer+2]
+					secondParameter = vm.memory[vm.instructionPointer+2]
 				} else if modeOfSecondParam == 1 {
-					secondParameter = instructionPointer + 2
+					secondParameter = vm.instructionPointer + 2
 				} else {
 					fmt.Printf("unknown parameterMode %d", modeOfSecondParam)
 					os.Exit(-1)
@@ -241,21 +266,21 @@ outerLoop:
 			// determine thirdParameter
 			{
 				if modeOfThirdParam == 0 {
-					thirdParameter = inputNumbers[instructionPointer+3]
+					thirdParameter = vm.memory[vm.instructionPointer+3]
 				} else if modeOfThirdParam == 1 {
-					thirdParameter = instructionPointer + 3
+					thirdParameter = vm.instructionPointer + 3
 				} else {
 					fmt.Printf("unknown parameterMode %d", modeOfThirdParam)
 					os.Exit(-1)
 				}
 			}
 
-			if inputNumbers[firstParameter] < inputNumbers[secondParameter] {
-				inputNumbers[thirdParameter] = 1
+			if vm.memory[firstParameter] < vm.memory[secondParameter] {
+				vm.memory[thirdParameter] = 1
 			} else {
-				inputNumbers[thirdParameter] = 0
+				vm.memory[thirdParameter] = 0
 			}
-			instructionPointer = move(instructionPointer, len(inputNumbers), 4)
+			vm.instructionPointer = move(vm.instructionPointer, len(vm.memory), 4)
 		case 8:
 			// Opcode 8 is equals
 			var firstParameter, secondParameter, thirdParameter int
@@ -263,9 +288,9 @@ outerLoop:
 			// determine firstParameter
 			{
 				if modeOfFirstParam == 0 {
-					firstParameter = inputNumbers[instructionPointer+1]
+					firstParameter = vm.memory[vm.instructionPointer+1]
 				} else if modeOfFirstParam == 1 {
-					firstParameter = instructionPointer + 1
+					firstParameter = vm.instructionPointer + 1
 				} else {
 					fmt.Printf("unknown parameterMode %d", modeOfFirstParam)
 					os.Exit(-1)
@@ -275,9 +300,9 @@ outerLoop:
 			// determine secondParameter
 			{
 				if modeOfSecondParam == 0 {
-					secondParameter = inputNumbers[instructionPointer+2]
+					secondParameter = vm.memory[vm.instructionPointer+2]
 				} else if modeOfSecondParam == 1 {
-					secondParameter = instructionPointer + 2
+					secondParameter = vm.instructionPointer + 2
 				} else {
 					fmt.Printf("unknown parameterMode %d", modeOfSecondParam)
 					os.Exit(-1)
@@ -287,21 +312,21 @@ outerLoop:
 			// determine thirdParameter
 			{
 				if modeOfThirdParam == 0 {
-					thirdParameter = inputNumbers[instructionPointer+3]
+					thirdParameter = vm.memory[vm.instructionPointer+3]
 				} else if modeOfThirdParam == 1 {
-					thirdParameter = instructionPointer + 3
+					thirdParameter = vm.instructionPointer + 3
 				} else {
 					fmt.Printf("unknown parameterMode %d", modeOfThirdParam)
 					os.Exit(-1)
 				}
 			}
 
-			if inputNumbers[firstParameter] == inputNumbers[secondParameter] {
-				inputNumbers[thirdParameter] = 1
+			if vm.memory[firstParameter] == vm.memory[secondParameter] {
+				vm.memory[thirdParameter] = 1
 			} else {
-				inputNumbers[thirdParameter] = 0
+				vm.memory[thirdParameter] = 0
 			}
-			instructionPointer = move(instructionPointer, len(inputNumbers), 4)
+			vm.instructionPointer = move(vm.instructionPointer, len(vm.memory), 4)
 		case 99:
 			// 99 means that the program is finished and should immediately halt
 			break outerLoop
@@ -310,7 +335,7 @@ outerLoop:
 			os.Exit(-1)
 		}
 	}
-	return output
+	return vm.output, true
 }
 
 func extractInstruction(instruction int) (int, int, int, int) {
