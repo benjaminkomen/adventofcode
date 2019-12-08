@@ -126,9 +126,9 @@ func (li *LayeredImage) visualiseImage() {
 	for i, pixel := range li.DecodedImage {
 		switch pixel {
 		case 0:
-			currentRow.WriteString("■")
-		case 1:
 			currentRow.WriteString(" ")
+		case 1:
+			currentRow.WriteString("x")
 		case 2:
 			currentRow.WriteString(" ")
 		default:
