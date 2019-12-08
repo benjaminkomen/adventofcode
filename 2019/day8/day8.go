@@ -26,21 +26,34 @@ func RunProgram(imageLayers LayeredImage) int {
 	return numberOfOneDigits * numberOfTwoDigits
 }
 
-func RunProgram2(imageLayers LayeredImage) []int {
-	decodedImage := decodeImage(imageLayers)
-	visualiseImage(decodedImage)
-	return decodedImage
+func RunProgram2(layeredImage LayeredImage) []int {
+	layeredImage.decodeImage()
+	layeredImage.visualiseImage()
+
+	return layeredImage.DecodedImage
 }
 
 type Image []int
-type LayeredImage []Image
+
+type LayeredImage struct {
+	Width        int
+	Height       int
+	ImageLayers  []Image
+	DecodedImage Image
+}
 
 func MakeLayeredImage(input string, imageWidth int, imageHeight int) LayeredImage {
 	layerArea := imageWidth * imageHeight
 	layerCounter := 0
 	inputAsSlice := strings.Split(input, "")
 	amountOfLayers := len(inputAsSlice) / layerArea
-	var result = make(LayeredImage, amountOfLayers)
+
+	var result = LayeredImage{
+		Width:        imageWidth,
+		Height:       imageHeight,
+		ImageLayers:  make([]Image, amountOfLayers),
+		DecodedImage: nil,
+	}
 
 	for i, digit := range inputAsSlice {
 		digitAsInt, err := strconv.Atoi(digit)
@@ -49,11 +62,11 @@ func MakeLayeredImage(input string, imageWidth int, imageHeight int) LayeredImag
 			os.Exit(-1)
 		}
 
-		if result[layerCounter] == nil {
-			result[layerCounter] = []int{}
+		if result.ImageLayers[layerCounter] == nil {
+			result.ImageLayers[layerCounter] = []int{}
 		}
 
-		result[layerCounter] = append(result[layerCounter], digitAsInt)
+		result.ImageLayers[layerCounter] = append(result.ImageLayers[layerCounter], digitAsInt)
 
 		if (i + 1) >= (layerArea * (layerCounter + 1)) {
 			layerCounter++
@@ -62,11 +75,11 @@ func MakeLayeredImage(input string, imageWidth int, imageHeight int) LayeredImag
 	return result
 }
 
-func findLayerWithMinimum(layers LayeredImage, number int) Image {
+func findLayerWithMinimum(layeredImage LayeredImage, number int) Image {
 	currentMinimumAmount := int(^uint(0) >> 1)
 	var currentImageLayer Image
 
-	for _, layer := range layers {
+	for _, layer := range layeredImage.ImageLayers {
 		currentAmount := countNumberInLayer(layer, number)
 		if currentAmount < currentMinimumAmount {
 			currentImageLayer = layer
@@ -76,10 +89,10 @@ func findLayerWithMinimum(layers LayeredImage, number int) Image {
 	return currentImageLayer
 }
 
-func countNumberInLayer(layer Image, number int) int {
+func countNumberInLayer(imageLayer Image, number int) int {
 	var amount int
 
-	for _, digit := range layer {
+	for _, digit := range imageLayer {
 		if digit == number {
 			amount++
 		}
@@ -87,20 +100,46 @@ func countNumberInLayer(layer Image, number int) int {
 	return amount
 }
 
-func decodeImage(layers LayeredImage) Image {
-	decodedImage := layers[0]
+func (li *LayeredImage) decodeImage() {
+	li.DecodedImage = make([]int, len(li.ImageLayers[0]))
+	copy(li.DecodedImage, li.ImageLayers[0])
 
-	for _, layer := range layers {
+	for _, layer := range li.ImageLayers {
 		for pos, pixel := range layer {
 			// replace transparent upper layer with current layer's pixel, otherwise leave the upper layer as the visible pixel
-			if decodedImage[pos] == 2 {
-				decodedImage[pos] = pixel
+			if li.DecodedImage[pos] == 2 {
+				li.DecodedImage[pos] = pixel
 			}
 		}
 	}
-	return decodedImage
 }
 
-func visualiseImage(image Image) {
+func (li *LayeredImage) imageArea() int {
+	return li.Width * li.Height
+}
 
+func (li *LayeredImage) visualiseImage() {
+
+	rowCounter := 0
+	var currentRow strings.Builder
+
+	for i, pixel := range li.DecodedImage {
+		switch pixel {
+		case 0:
+			currentRow.WriteString("■")
+		case 1:
+			currentRow.WriteString(" ")
+		case 2:
+			currentRow.WriteString(" ")
+		default:
+			fmt.Printf("Error! Unexpected pixel coding: %d", pixel)
+			os.Exit(-1)
+		}
+
+		if (i+1)%li.Width == 0 {
+			rowCounter++
+			fmt.Println(currentRow.String())
+			currentRow.Reset()
+		}
+	}
 }
