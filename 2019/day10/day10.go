@@ -71,12 +71,30 @@ func (a *Asteroid) canDetectOtherAsteroid(otherAsteroid Asteroid, asteroids []As
 		comparisonX := fmt.Sprintf("%.2f", lineOfSight(float64(someAsteroid.X)))
 		comparisonY := fmt.Sprintf("%.2f", float64(someAsteroid.Y))
 
-		deltaXToOtherAsteroid := math.Abs(float64(otherAsteroid.X - a.X))
-		deltaXToSomeAsteroid := math.Abs(float64(someAsteroid.X - a.X))
-		deltaYToOtherAsteroid := math.Abs(float64(otherAsteroid.Y - a.Y))
-		deltaYToSomeAsteroid := math.Abs(float64(someAsteroid.X - a.Y))
-		if comparisonX == comparisonY && deltaXToSomeAsteroid < deltaXToOtherAsteroid && deltaYToSomeAsteroid < deltaYToOtherAsteroid {
-			// there is SOME asteroid in the line-of-sight BETWEEN (not further away) our asteroid of interest and the other asteroid, they cannot detect each other
+		deltaXToOtherAsteroid := float64(otherAsteroid.X - a.X)
+		signDeltaXToOtherAsteroid := math.Signbit(deltaXToOtherAsteroid)
+		absDeltaXToOtherAsteroid := math.Abs(deltaXToOtherAsteroid)
+
+		deltaXToSomeAsteroid := float64(someAsteroid.X - a.X)
+		signDeltaXToSomeAsteroid := math.Signbit(deltaXToSomeAsteroid)
+		absDeltaXToSomeAsteroid := math.Abs(deltaXToSomeAsteroid)
+
+		deltaYToOtherAsteroid := float64(otherAsteroid.Y - a.Y)
+		signDeltaYToOtherAsteroid := math.Signbit(deltaYToOtherAsteroid)
+		absDeltaYToOtherAsteroid := math.Abs(deltaYToOtherAsteroid)
+
+		deltaYToSomeAsteroid := float64(someAsteroid.Y - a.Y)
+		signDeltaYToSomeAsteroid := math.Signbit(deltaYToSomeAsteroid)
+		absDeltaYToSomeAsteroid := math.Abs(deltaYToSomeAsteroid)
+
+		if comparisonX == "NaN" && a.X == someAsteroid.X && absDeltaYToSomeAsteroid < absDeltaYToOtherAsteroid && signDeltaYToOtherAsteroid == signDeltaYToSomeAsteroid {
+			// the lineOfSight is a vertical line with an infinite slope
+			return false
+		} else if a.Y == otherAsteroid.Y && a.Y == someAsteroid.Y && absDeltaXToSomeAsteroid < absDeltaXToOtherAsteroid && signDeltaXToOtherAsteroid == signDeltaXToSomeAsteroid {
+			// the lineOfSight is a horizontal line
+			return false
+		} else if comparisonX == comparisonY && absDeltaXToSomeAsteroid < absDeltaXToOtherAsteroid && absDeltaYToSomeAsteroid < absDeltaYToOtherAsteroid && signDeltaXToOtherAsteroid == signDeltaXToSomeAsteroid && signDeltaYToOtherAsteroid == signDeltaYToSomeAsteroid {
+			// there is SOME asteroid in the line-of-sight BETWEEN (not further away AND in the same direction) our asteroid of interest and the other asteroid, they cannot detect each other
 			return false
 		}
 	}
