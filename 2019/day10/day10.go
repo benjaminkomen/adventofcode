@@ -4,22 +4,24 @@ import (
 	"fmt"
 	"github.com/adventofcode/2019/common"
 	"math"
+	"sort"
 	"strings"
 )
 
 func main() {
 	inputAsStr := string(common.ReadBytes("./day10/input.txt"))
 
-	result1 := RunProgram(ParseInput(inputAsStr))
-	//result2 := RunProgram(inputAsStr)
+	asteroids := ParseInput(inputAsStr)
+	result1 := RunProgram(asteroids)
+	result2 := RunProgram2(result1, asteroids, 200)
 
-	fmt.Printf("Part 1 is: %d \n", result1)
-	//fmt.Printf("Part 2 is: %d \n", result2)
+	fmt.Printf("Part 1 is: %d at location (%d,%d) \n", result1.NumberOfAsteroidsItCanDetect, result1.X, result1.Y)
+	fmt.Printf("Part 2 is: %d \n", result2)
 }
 
-func RunProgram(asteroids []Asteroid) int {
+func RunProgram(asteroids []Asteroid) Asteroid {
 
-	var maxNumberOfAsteroids int
+	var asteroidOnBestLocation Asteroid
 	var computedAsteroids []Asteroid
 
 	for _, asteroid := range asteroids {
@@ -27,18 +29,58 @@ func RunProgram(asteroids []Asteroid) int {
 
 		computedAsteroids = append(computedAsteroids, asteroid)
 
-		if asteroid.NumberOfAsteroidsItCanDetect > maxNumberOfAsteroids {
-			maxNumberOfAsteroids = asteroid.NumberOfAsteroidsItCanDetect
+		if asteroid.NumberOfAsteroidsItCanDetect > asteroidOnBestLocation.NumberOfAsteroidsItCanDetect {
+			asteroidOnBestLocation = asteroid
 		}
 	}
 
-	return maxNumberOfAsteroids
+	return asteroidOnBestLocation
+}
+
+func RunProgram2(bestAsteroid Asteroid, allAsteroids []Asteroid, numberToFind int) int {
+
+	vaporizedAsteroids := vaporizeAsteroids(bestAsteroid, allAsteroids)
+
+	found, twohunderthAsteroid := findVaporizedAsteroid(vaporizedAsteroids, numberToFind)
+	if !found {
+		return 0
+	}
+
+	return (twohunderthAsteroid.X * 100) + twohunderthAsteroid.Y
+}
+
+/* TODO implement this method:
+- calculate angle from the vertical zero-line to the line of interest (from bestAsteroid to given asteroid) with inverse tan = deltaX / deltaY for every asteroid
+- sort the asteroids by angle from lowest to highest
+- loop over asteroids and vaporize them (by setting the vaporize position and removing them from the current list and add it to the vaporizedAsteroids list), if they are visible
+- return list of vaporized asteroids
+*/
+func vaporizeAsteroids(bestAsteroid Asteroid, asteroids []Asteroid) []Asteroid {
+
+	var vaporizedAsteroids = make([]Asteroid, len(asteroids))
+
+	for _, asteroid := range asteroids {
+		asteroid.calculateAngleToVerticalPlane(bestAsteroid)
+	}
+
+	sort.Slice(asteroids, func(i, j int) bool {
+		return asteroids[i].Angle < asteroids[j].Angle
+	})
+
+	for _, asteroid := range asteroids {
+		// if asteroid is visible, vaporize it and add
+		vaporizedAsteroids = append(vaporizedAsteroids, asteroid)
+	}
+
+	return vaporizedAsteroids
 }
 
 type Asteroid struct {
 	X                            int
 	Y                            int
 	NumberOfAsteroidsItCanDetect int
+	Angle                        float64 // in radians (or degrees?)
+	VaporizePosition             int
 }
 
 func (a *Asteroid) equals(other Asteroid) bool {
@@ -102,6 +144,11 @@ func (a *Asteroid) canDetectOtherAsteroid(otherAsteroid Asteroid, asteroids []As
 	return true
 }
 
+// TODO implement this method
+func (a *Asteroid) calculateAngleToVerticalPlane(asteroid Asteroid) {
+
+}
+
 func computeLineOfSight(firstAsteroid Asteroid, secondAsteroid Asteroid) func(x float64) float64 {
 	x1 := float64(firstAsteroid.X)
 	x2 := float64(secondAsteroid.X)
@@ -140,4 +187,14 @@ func ParseInput(inputAsStr string) []Asteroid {
 	}
 
 	return result
+}
+
+func findVaporizedAsteroid(asteroids []Asteroid, numberToFind int) (bool, Asteroid) {
+	for _, asteroid := range asteroids {
+		if asteroid.VaporizePosition == numberToFind {
+			return true, asteroid
+		}
+	}
+
+	return false, Asteroid{}
 }
