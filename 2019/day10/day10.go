@@ -50,8 +50,6 @@ func RunProgram2(bestAsteroid Asteroid, allAsteroids []Asteroid, numberToFind in
 }
 
 /* TODO implement this method:
-- calculate angle from the vertical zero-line to the line of interest (from bestAsteroid to given asteroid) with inverse tan = deltaX / deltaY for every asteroid
-- sort the asteroids by angle from lowest to highest
 - loop over asteroids and vaporize them (by setting the vaporize position and removing them from the current list and add it to the vaporizedAsteroids list), if they are visible
 - return list of vaporized asteroids
 */
@@ -59,8 +57,12 @@ func vaporizeAsteroids(bestAsteroid Asteroid, asteroids []Asteroid) []Asteroid {
 
 	var vaporizedAsteroids = make([]Asteroid, len(asteroids))
 
-	for _, asteroid := range asteroids {
-		asteroid.calculateAngleToVerticalPlane(bestAsteroid)
+	for _, otherAsteroid := range asteroids {
+		if bestAsteroid.equals(otherAsteroid) {
+			continue // skip comparing with yourself obviously
+		}
+
+		otherAsteroid.calculateAngleToVerticalPlane(bestAsteroid)
 	}
 
 	sort.Slice(asteroids, func(i, j int) bool {
@@ -144,9 +146,31 @@ func (a *Asteroid) canDetectOtherAsteroid(otherAsteroid Asteroid, asteroids []As
 	return true
 }
 
-// TODO implement this method
-func (a *Asteroid) calculateAngleToVerticalPlane(asteroid Asteroid) {
+func (a *Asteroid) calculateAngleToVerticalPlane(otherAsteroid Asteroid) {
+	tan := (otherAsteroid.X - a.X) / (otherAsteroid.Y - a.Y)
+	radians := math.Atan(float64(tan))
+	degrees := radiansToDegrees(radians)
 
+	XIsNegative := math.Signbit(float64(otherAsteroid.X - a.X))
+	YIsNegative := math.Signbit(float64(otherAsteroid.Y - a.Y))
+
+	var adjustedDegrees float64
+
+	if !XIsNegative && !YIsNegative {
+		adjustedDegrees = degrees
+	} else if !XIsNegative && YIsNegative {
+		adjustedDegrees = degrees + 90
+	} else if XIsNegative && !YIsNegative {
+		adjustedDegrees = degrees + 180
+	} else if XIsNegative && YIsNegative {
+		adjustedDegrees = degrees + 270
+	}
+
+	a.Angle = adjustedDegrees
+}
+
+func radiansToDegrees(radians float64) float64 {
+	return radians * 180 / math.Pi
 }
 
 func computeLineOfSight(firstAsteroid Asteroid, secondAsteroid Asteroid) func(x float64) float64 {
