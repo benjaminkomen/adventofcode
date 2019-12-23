@@ -41,48 +41,71 @@ func RunProgram2(bestAsteroid Asteroid, allAsteroids []Asteroid, numberToFind in
 
 	vaporizedAsteroids := vaporizeAsteroids(bestAsteroid, allAsteroids)
 
-	found, twohunderthAsteroid := findVaporizedAsteroid(vaporizedAsteroids, numberToFind)
-	if !found {
-		return 0
-	}
+	twohunderthAsteroid := vaporizedAsteroids[numberToFind-1] // because 0-indexed
 
 	return (twohunderthAsteroid.X * 100) + twohunderthAsteroid.Y
 }
 
-/* TODO implement this method:
-- loop over asteroids and vaporize them (by setting the vaporize position and removing them from the current list and add it to the vaporizedAsteroids list), if they are visible
-- return list of vaporized asteroids
-*/
 func vaporizeAsteroids(bestAsteroid Asteroid, asteroids []Asteroid) []Asteroid {
 
-	var vaporizedAsteroids = make([]Asteroid, len(asteroids))
+	asteroids = removeAsteroidFromAsteroidSlice(asteroids, bestAsteroid)
 
-	for _, otherAsteroid := range asteroids {
-		if bestAsteroid.equals(otherAsteroid) {
-			continue // skip comparing with yourself obviously
-		}
-
-		otherAsteroid.calculateAngleToVerticalPlane(bestAsteroid)
+	for i, otherAsteroid := range asteroids {
+		otherAsteroid.calculateDistances(bestAsteroid)
+		asteroids[i] = otherAsteroid
 	}
 
+	/* sort by:
+	   - quadrant ASC
+	   - deltaX   ASC
+	   - deltaY   ASC
+	   - distance ASC
+	*/
+	// TODO sort correctly
 	sort.Slice(asteroids, func(i, j int) bool {
-		return asteroids[i].Angle < asteroids[j].Angle
+		return asteroids[i].Quadrant < asteroids[j].Quadrant &&
+			asteroids[i].DeltaX < asteroids[j].DeltaX &&
+			asteroids[i].DeltaY > asteroids[j].DeltaY &&
+			asteroids[i].DistanceToBestAsteroid < asteroids[j].DistanceToBestAsteroid
 	})
 
-	for _, asteroid := range asteroids {
-		// if asteroid is visible, vaporize it and add
-		vaporizedAsteroids = append(vaporizedAsteroids, asteroid)
+	var i int
+	round := 1
+	for {
+		// condition to break loop
+		if allAsteroidsVaporized(asteroids) {
+			break
+		}
+
+		// increase loop counter, at the end of the round we start over
+		if i < len(asteroids) {
+			i++
+		} else {
+			i = 0
+			round++
+		}
+
+		otherAsteroid := asteroids[i]
+
+		// not yet vaporized
+		// TODO and should be visible, i.e. not blocked by some asteroid which has the direction but a smaller distance and not yet vaporized
+		if otherAsteroid.VaporizedInRound == 0 {
+			otherAsteroid.VaporizedInRound = round
+		}
 	}
 
-	return vaporizedAsteroids
+	return asteroids
 }
 
 type Asteroid struct {
 	X                            int
 	Y                            int
 	NumberOfAsteroidsItCanDetect int
-	Angle                        float64 // in radians (or degrees?)
-	VaporizePosition             int
+	DeltaX                       float64
+	DeltaY                       float64
+	DistanceToBestAsteroid       float64
+	Quadrant                     int // 0, 1, 2, 3   clockwise: first, second, third or fourth quadrant
+	VaporizedInRound             int
 }
 
 func (a *Asteroid) equals(other Asteroid) bool {
@@ -146,31 +169,30 @@ func (a *Asteroid) canDetectOtherAsteroid(otherAsteroid Asteroid, asteroids []As
 	return true
 }
 
-func (a *Asteroid) calculateAngleToVerticalPlane(otherAsteroid Asteroid) {
-	tan := (otherAsteroid.X - a.X) / (otherAsteroid.Y - a.Y)
-	radians := math.Atan(float64(tan))
-	degrees := radiansToDegrees(radians)
+func (a *Asteroid) calculateDistances(bestAsteroid Asteroid) {
 
-	XIsNegative := math.Signbit(float64(otherAsteroid.X - a.X))
-	YIsNegative := math.Signbit(float64(otherAsteroid.Y - a.Y))
+	deltaXToBestAsteroid := float64(a.X - bestAsteroid.X)
+	xIsNegative := math.Signbit(deltaXToBestAsteroid)
+	absDeltaXToBestAsteroid := math.Abs(deltaXToBestAsteroid)
 
-	var adjustedDegrees float64
+	deltaYToBestAsteroid := float64(a.Y - bestAsteroid.Y)
+	yIsNegative := math.Signbit(deltaYToBestAsteroid)
+	absDeltaYToBestAsteroid := math.Abs(deltaYToBestAsteroid)
 
-	if !XIsNegative && !YIsNegative {
-		adjustedDegrees = degrees
-	} else if !XIsNegative && YIsNegative {
-		adjustedDegrees = degrees + 90
-	} else if XIsNegative && !YIsNegative {
-		adjustedDegrees = degrees + 180
-	} else if XIsNegative && YIsNegative {
-		adjustedDegrees = degrees + 270
+	a.DeltaX = absDeltaXToBestAsteroid
+	a.DeltaY = absDeltaYToBestAsteroid
+	a.DistanceToBestAsteroid = math.Sqrt((absDeltaXToBestAsteroid * absDeltaXToBestAsteroid) + (absDeltaYToBestAsteroid * absDeltaYToBestAsteroid))
+
+	// Determine Quadrant
+	if !xIsNegative && !yIsNegative {
+		a.Quadrant = 0
+	} else if !xIsNegative && yIsNegative {
+		a.Quadrant = 1
+	} else if xIsNegative && !yIsNegative {
+		a.Quadrant = 2
+	} else if xIsNegative && yIsNegative {
+		a.Quadrant = 3
 	}
-
-	a.Angle = adjustedDegrees
-}
-
-func radiansToDegrees(radians float64) float64 {
-	return radians * 180 / math.Pi
 }
 
 func computeLineOfSight(firstAsteroid Asteroid, secondAsteroid Asteroid) func(x float64) float64 {
@@ -213,12 +235,24 @@ func ParseInput(inputAsStr string) []Asteroid {
 	return result
 }
 
-func findVaporizedAsteroid(asteroids []Asteroid, numberToFind int) (bool, Asteroid) {
-	for _, asteroid := range asteroids {
-		if asteroid.VaporizePosition == numberToFind {
-			return true, asteroid
+func removeAsteroidFromAsteroidSlice(asteroids []Asteroid, asteroidToRemove Asteroid) []Asteroid {
+
+	var index int
+
+	for i, asteroid := range asteroids {
+		if asteroid.equals(asteroidToRemove) {
+			index = i
 		}
 	}
 
-	return false, Asteroid{}
+	return append(asteroids[:index], asteroids[index+1:]...)
+}
+
+func allAsteroidsVaporized(asteroids []Asteroid) bool {
+	for _, asteroid := range asteroids {
+		if asteroid.VaporizedInRound == 0 {
+			return false
+		}
+	}
+	return true
 }

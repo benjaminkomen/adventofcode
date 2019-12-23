@@ -45,3 +45,7 @@ func IntSliceToInt(slice []int) int {
 	}
 	return result
 }
+
+func RemoveIntFromIntSlice(s []int, index int) []int {
+	return append(s[:index], s[index+1:]...)
+}
