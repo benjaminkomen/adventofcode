@@ -13,10 +13,10 @@ func main() {
 	inputAsStr := string(common.ReadBytes("./day12/input.txt"))
 
 	result1 := RunProgram(ParseInput(inputAsStr), 1000)
-	//result2 := RunProgram(inputAsStr)
+	result2 := RunProgram2(ParseInput(inputAsStr))
 
 	fmt.Printf("Part 1 is: %.0f \n", result1)
-	//fmt.Printf("Part 2 is: %d \n", result2)
+	fmt.Printf("Part 2 is: %d \n", result2)
 }
 
 func RunProgram(moons []Moon, timeSteps int) float64 {
@@ -29,6 +29,35 @@ func RunProgram(moons []Moon, timeSteps int) float64 {
 	totalEnergy := calculateTotalEnergy(moons)
 
 	return totalEnergy
+}
+
+func RunProgram2(moons []Moon) int {
+
+	var previousStates = make(map[string]int, 1024)
+
+	for time := 0; ; time++ {
+		moons = updateVelocities(moons)
+		moons = updatePositions(moons)
+
+		hash := hashState(moons)
+		if _, ok := previousStates[hash]; ok {
+			return time
+		} else {
+			previousStates[hash] = time
+		}
+	}
+}
+
+// Make a string representation of the state of positions and velocities of the moons
+func hashState(moons []Moon) string {
+	var sb strings.Builder
+
+	for i, moon := range moons {
+		sb.WriteString(fmt.Sprintf("m%dpos(%d,%d,%d)vel(%d,%d,%d)",
+			i, moon.position.x, moon.position.y, moon.position.z, moon.velocity.x, moon.velocity.y, moon.velocity.z))
+	}
+
+	return sb.String()
 }
 
 // Update the velocity of each moon by applying gravity
