@@ -1,0 +1,30 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.6.0'
+    id 'application'
+}
+
+group = 'com.benjamin'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+}
+
+test {
+    useJUnitPlatform()
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = '17'
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = '17'
+}
+
+application {
+    mainClassName = 'MainKt'
+}
