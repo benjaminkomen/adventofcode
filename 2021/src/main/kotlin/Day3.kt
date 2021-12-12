@@ -1,5 +1,3 @@
-import java.lang.IllegalStateException
-
 object Day3 {
 
   @JvmStatic
@@ -22,51 +20,39 @@ object Day3 {
   }
 
   fun part2(input: String): Int {
-    val oxygenGeneratorRating = computeOxygenGeneratorRating(input)
-    val co2GeneratorRating = computeCo2GeneratorRating(input)
+    val states = input
+      .split(Regex.fromLiteral("\n"))
+      .map { it.mapToState() }
+
+    val oxygenGeneratorRating = computeGeneratorRating(states, true)
+    val co2GeneratorRating = computeGeneratorRating(states, false)
 
     return oxygenGeneratorRating * co2GeneratorRating
   }
 
-  private fun computeOxygenGeneratorRating(input: String): Int {
-    var states = input
-      .split(Regex.fromLiteral("\n"))
-      .map { it.mapToState() }
-
-    (0 until states[0].bits.size).forEach { index ->
-      val reducedState = states.reduce { previousState, newLine -> previousState + newLine }
-      val oneOrZero = reducedState.bits[index].highestCount()
-
-      states = states.filter { it.bits[index].toInt() == oneOrZero }
-
-      if (states.size == 1) {
-        return states[0].toInt()
-      }
-    }
-    throw IllegalStateException("Could not compute the oxygen generator rating")
+  private fun computeGeneratorRating(states: List<State>, takeHighest: Boolean): Int {
+    return (0 until states[0].bits.size)
+      .fold(states) { previousStates, index -> accumulatorFunc(previousStates, index, takeHighest) }
+      .takeIf { it.size == 1 }
+      ?.let { it[0].toInt() }
+      ?: throw IllegalStateException("Could not compute the generator rating")
   }
 
-  private fun computeCo2GeneratorRating(input: String): Int {
-    var states = input
-      .split(Regex.fromLiteral("\n"))
-      .map { it.mapToState() }
+  private fun accumulatorFunc(previousStates: List<State>, index: Int, takeHighest: Boolean): List<State> {
+    if (previousStates.size == 1) return previousStates
 
-    (0 until states[0].bits.size).forEach { index ->
-      val reducedState = states.reduce { previousState, newLine -> previousState + newLine }
-      val oneOrZero = reducedState.bits[index].lowestCount()
-
-      states = states.filter { it.bits[index].toInt() == oneOrZero }
-
-      if (states.size == 1) {
-        return states[0].toInt()
-      }
+    val reducedState = previousStates.reduce { previousState, newLine -> previousState + newLine }
+    val oneOrZero = if (takeHighest) {
+      reducedState.bits[index].highestCount()
+    } else {
+      reducedState.bits[index].lowestCount()
     }
-    throw IllegalStateException("Could not compute the co2 generator rating")
+    return previousStates.filter { it.bits[index].toInt() == oneOrZero }
   }
 }
 
 private fun State.Bit.highestCount(): Int {
-   return if (this.oneCount < this.zeroCount) 0 else 1
+  return if (this.oneCount < this.zeroCount) 0 else 1
 }
 
 private fun State.Bit.lowestCount(): Int {
@@ -101,11 +87,11 @@ private fun String.mapToState(): State {
     bits = this.split("")
       .filterNot { it.isBlank() }
       .map {
-      State.Bit(
-        zeroCount = if (it == "0") 1 else 0,
-        oneCount = if (it == "1") 1 else 0
-      )
-    }
+        State.Bit(
+          zeroCount = if (it == "0") 1 else 0,
+          oneCount = if (it == "1") 1 else 0
+        )
+      }
   )
 }
 
@@ -116,7 +102,7 @@ data class State(
     val zeroCount: Int,
     val oneCount: Int,
   ) {
-    fun toInt() = if (oneCount == 1 ) 1 else 0
+    fun toInt() = if (oneCount == 1) 1 else 0
     override fun toString() = toInt().toString()
   }
 
