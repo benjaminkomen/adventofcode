@@ -1,3 +1,5 @@
+import java.lang.IllegalStateException
+
 object Day3 {
 
   @JvmStatic
@@ -20,8 +22,55 @@ object Day3 {
   }
 
   fun part2(input: String): Int {
-    TODO()
+    val oxygenGeneratorRating = computeOxygenGeneratorRating(input)
+    val co2GeneratorRating = computeCo2GeneratorRating(input)
+
+    return oxygenGeneratorRating * co2GeneratorRating
   }
+
+  private fun computeOxygenGeneratorRating(input: String): Int {
+    var states = input
+      .split(Regex.fromLiteral("\n"))
+      .map { it.mapToState() }
+
+    (0 until states[0].bits.size).forEach { index ->
+      val reducedState = states.reduce { previousState, newLine -> previousState + newLine }
+      val oneOrZero = reducedState.bits[index].highestCount()
+
+      states = states.filter { it.bits[index].toInt() == oneOrZero }
+
+      if (states.size == 1) {
+        return states[0].toInt()
+      }
+    }
+    throw IllegalStateException("Could not compute the oxygen generator rating")
+  }
+
+  private fun computeCo2GeneratorRating(input: String): Int {
+    var states = input
+      .split(Regex.fromLiteral("\n"))
+      .map { it.mapToState() }
+
+    (0 until states[0].bits.size).forEach { index ->
+      val reducedState = states.reduce { previousState, newLine -> previousState + newLine }
+      val oneOrZero = reducedState.bits[index].lowestCount()
+
+      states = states.filter { it.bits[index].toInt() == oneOrZero }
+
+      if (states.size == 1) {
+        return states[0].toInt()
+      }
+    }
+    throw IllegalStateException("Could not compute the co2 generator rating")
+  }
+}
+
+private fun State.Bit.highestCount(): Int {
+   return if (this.oneCount < this.zeroCount) 0 else 1
+}
+
+private fun State.Bit.lowestCount(): Int {
+  return if (this.oneCount < this.zeroCount) 1 else 0
 }
 
 private fun State.mapToPowerConsumption(): Int {
@@ -66,5 +115,12 @@ data class State(
   data class Bit(
     val zeroCount: Int,
     val oneCount: Int,
-  )
+  ) {
+    fun toInt() = if (oneCount == 1 ) 1 else 0
+    override fun toString() = toInt().toString()
+  }
+
+  override fun toString() = bits.joinToString("") { it.toString() }
+
+  fun toInt() = this.toString().toInt(2)
 }

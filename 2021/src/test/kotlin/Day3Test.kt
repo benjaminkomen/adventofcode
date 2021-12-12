@@ -27,6 +27,6 @@ internal class Day3Test {
   fun `should test part2`() {
     val testInput = testInput
 
-    assertEquals(-1, Day3.part2(testInput))
+    assertEquals(230, Day3.part2(testInput))
   }
 }
