@@ -1,5 +1,3 @@
-import java.lang.IllegalStateException
-
 object Day4 {
 
   @JvmStatic
@@ -20,9 +18,10 @@ object Day4 {
 
     drawNumbers.forEach { number ->
       bingoBoards.drawNumber(number)
-      val sumOfAllUnmarkedNumbers = bingoBoards.determineIfWon()
+      val indexOfBoardIfWon = bingoBoards.determineIfWon()
 
-      if (sumOfAllUnmarkedNumbers != null) {
+      if (indexOfBoardIfWon != null) {
+        val sumOfAllUnmarkedNumbers = bingoBoards[indexOfBoardIfWon].sumOfAllUnmarkedNumbers()
         return sumOfAllUnmarkedNumbers * number
       }
     }
@@ -31,7 +30,25 @@ object Day4 {
   }
 
   fun part2(input: String): Int {
-    TODO()
+    val data = input.split("\n\n".toRegex())
+    val drawNumbers = data.first().split(",").map { it.toInt() }
+    val bingoBoards = data.subList(1, data.size).map { it.toBingoBoard() }.toMutableList()
+
+    drawNumbers.forEach { number ->
+      bingoBoards.drawNumber(number)
+      val indexOfBoardIfWon = bingoBoards.determineIfWon()
+
+      if (indexOfBoardIfWon != null && bingoBoards.allWon().not()) {
+        bingoBoards.removeAt(indexOfBoardIfWon)
+      }
+
+      if (indexOfBoardIfWon != null && bingoBoards.allWon()) {
+        val sumOfAllUnmarkedNumbers = bingoBoards[indexOfBoardIfWon].sumOfAllUnmarkedNumbers()
+        return sumOfAllUnmarkedNumbers * number
+      }
+    }
+
+    throw IllegalStateException("Did not find a winning bingo board")
   }
 }
 
@@ -63,14 +80,13 @@ private fun List<BingoBoard>.drawNumber(number: Int) {
 }
 
 private fun List<BingoBoard>.determineIfWon(): Int? {
-  this.forEach {
-    it.won = anyRowComplete(it.numbers) || anyColumnComplete(it.numbers)
+  return this.indexOfFirst { anyRowComplete(it.numbers) || anyColumnComplete(it.numbers) }.takeIf { it != -1 }
+}
 
-    if (it.won) {
-      return it.sumOfAllUnmarkedNumbers()
-    }
+private fun List<BingoBoard>.allWon(): Boolean {
+  return this.all {
+    anyRowComplete(it.numbers) || anyColumnComplete(it.numbers)
   }
-  return null
 }
 
 private fun BingoBoard.sumOfAllUnmarkedNumbers(): Int {
