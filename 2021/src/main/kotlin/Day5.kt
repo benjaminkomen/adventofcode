@@ -45,7 +45,7 @@ object Day5 {
   }
 
   data class Diagram(
-    val positions: List<Position> = emptyList(),
+    val positions: MutableList<Position> = mutableListOf(),
   ) {
     data class Position(
       val point: Line.Point,
@@ -83,10 +83,7 @@ object Day5 {
         }
         from.x > to.x && from.y > to.y -> {
           // decreasing X and Y
-          val result = (from.x downTo to.x).mapIndexed { index, xPoint -> Line.Point(x = xPoint, y = from.y - index) }
-          assert(result[0] == Line.Point(from.x, from.y)) { "First point should be from" }
-          assert(result[result.size -1] == Line.Point(to.x, to.y)) { "Last point should be to" }
-          return result
+          (from.x downTo to.x).mapIndexed { index, xPoint -> Line.Point(x = xPoint, y = from.y - index) }
         }
         from.x > to.x && from.y < to.y -> {
           // decreasing X and increasing Y
@@ -110,8 +107,9 @@ object Day5 {
   }
 
   private operator fun Diagram.plus(point: Line.Point): Diagram {
-    val increaseCoverageOfExistingPosition = positions.firstOrNull { it.point == point }?.let { it.coverage++ }?.let { positions }
-    val addNewPosition = positions + listOf(Diagram.Position(point = point, coverage = 1))
-    return this.copy(positions = increaseCoverageOfExistingPosition ?: addNewPosition)
+    positions.firstOrNull { it.point == point }
+      ?.let { it.coverage++ }
+      ?: run { positions.add(Diagram.Position(point = point, coverage = 1)) }
+    return this
   }
 }
