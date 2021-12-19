@@ -22,7 +22,12 @@ object Day5 {
   }
 
   fun part2(input: String): Int {
-    TODO()
+    return input
+      .split("\n".toRegex())
+      .map { it.toLine() }
+      .flatMap { it.toPoints() }
+      .fold(Diagram()) { previousDiagram, newPoint -> previousDiagram + newPoint }
+      .positions.filter { it.coverage >= 2 }.size
   }
 
   data class Line(
@@ -58,16 +63,39 @@ object Day5 {
       } else {
         from.y downTo to.y
       }
-      range.map { yPoint -> Line.Point(x = this.from.x, y = yPoint) }
+      range.map { yPoint -> Line.Point(x = from.x, y = yPoint) }
     } else if (this.isVertical()) {
-      val range = if (this.from.x < this.to.x) {
-        this.from.x..this.to.x
+      val range = if (from.x < to.x) {
+        from.x..to.x
       } else {
-        this.from.x downTo this.to.x
+        from.x downTo to.x
       }
-      range.map { xPoint -> Line.Point(x = xPoint, y = this.from.y) }
+      range.map { xPoint -> Line.Point(x = xPoint, y = from.y) }
     } else {
-      throw IllegalStateException("Line should be either horizontal or vertical")
+      return when {
+        from.x < to.x && from.y < to.y -> {
+          // increasing X and Y
+          (from.x..to.x).mapIndexed { index, xPoint -> Line.Point(x = xPoint, y = from.y + index) }
+        }
+        from.x < to.x && from.y > to.y -> {
+          // increasing X and decreasing Y
+          (from.x..to.x).mapIndexed { index, xPoint -> Line.Point(x = xPoint, y = from.y - index) }
+        }
+        from.x > to.x && from.y > to.y -> {
+          // decreasing X and Y
+          val result = (from.x downTo to.x).mapIndexed { index, xPoint -> Line.Point(x = xPoint, y = from.y - index) }
+          assert(result[0] == Line.Point(from.x, from.y)) { "First point should be from" }
+          assert(result[result.size -1] == Line.Point(to.x, to.y)) { "Last point should be to" }
+          return result
+        }
+        from.x > to.x && from.y < to.y -> {
+          // decreasing X and increasing Y
+          (from.x downTo to.x).mapIndexed { index, xPoint -> Line.Point(x = xPoint, y = from.y + index) }
+        }
+        else -> {
+          throw IllegalStateException("Could not compute range")
+        }
+      }
     }
   }
 
