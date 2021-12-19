@@ -26,48 +26,48 @@ object Day2 {
       .fold(PositionWithAim(0, 0, 0)) { previousPosition, newInstruction -> previousPosition + newInstruction }
       .let { it.horizontal * it.vertical }
   }
-}
 
-data class Instruction(
-  val direction: String,
-  val units: Int,
-)
+  data class Instruction(
+    val direction: String,
+    val units: Int,
+  )
 
-data class Position(
-  val horizontal: Int,
-  val vertical: Int,
-)
+  data class Position(
+    val horizontal: Int,
+    val vertical: Int,
+  )
 
-data class PositionWithAim(
-  val horizontal: Int,
-  val vertical: Int,
-  val aim: Int,
-)
+  data class PositionWithAim(
+    val horizontal: Int,
+    val vertical: Int,
+    val aim: Int,
+  )
 
-private fun String.mapToInstruction(): Instruction {
-  val (direction, units) = this.split(" ")
-  return Instruction(direction = direction, units = units.toInt())
-}
-
-private operator fun Position.plus(instruction: Instruction): Position {
-  return when (instruction.direction) {
-    "forward" -> this.copy(horizontal = this.horizontal + instruction.units)
-    "down"  -> this.copy(vertical = this.vertical + instruction.units)
-    "up" -> this.copy(vertical = this.vertical - instruction.units)
-    else -> throw IllegalStateException("Unknown instruction: $instruction")
+  private fun String.mapToInstruction(): Instruction {
+    val (direction, units) = this.split(" ")
+    return Instruction(direction = direction, units = units.toInt())
   }
-}
 
-private operator fun PositionWithAim.plus(instruction: Instruction): PositionWithAim {
-  return when (instruction.direction) {
-    "forward" -> {
-      this.copy(
-        horizontal = this.horizontal + instruction.units,
-        vertical = this.vertical + (this.aim * instruction.units)
-      )
+  private operator fun Position.plus(instruction: Instruction): Position {
+    return when (instruction.direction) {
+      "forward" -> this.copy(horizontal = this.horizontal + instruction.units)
+      "down"  -> this.copy(vertical = this.vertical + instruction.units)
+      "up" -> this.copy(vertical = this.vertical - instruction.units)
+      else -> throw IllegalStateException("Unknown instruction: $instruction")
     }
-    "down" -> this.copy(aim = this.aim + instruction.units)
-    "up" -> this.copy(aim = this.aim - instruction.units)
-    else -> throw IllegalStateException("Unknown instruction: $instruction")
+  }
+
+  private operator fun PositionWithAim.plus(instruction: Instruction): PositionWithAim {
+    return when (instruction.direction) {
+      "forward" -> {
+        this.copy(
+          horizontal = this.horizontal + instruction.units,
+          vertical = this.vertical + (this.aim * instruction.units)
+        )
+      }
+      "down" -> this.copy(aim = this.aim + instruction.units)
+      "up" -> this.copy(aim = this.aim - instruction.units)
+      else -> throw IllegalStateException("Unknown instruction: $instruction")
+    }
   }
 }

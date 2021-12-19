@@ -49,64 +49,64 @@ object Day3 {
     }
     return previousStates.filter { it.bits[index].toInt() == oneOrZero }
   }
-}
 
-private fun State.Bit.highestCount(): Int {
-  return if (this.oneCount < this.zeroCount) 0 else 1
-}
-
-private fun State.Bit.lowestCount(): Int {
-  return if (this.oneCount < this.zeroCount) 1 else 0
-}
-
-private fun State.mapToPowerConsumption(): Int {
-  val gammaRateAsBinary = this.bits.map { if (it.zeroCount > it.oneCount) 0 else 1 }.joinToString(separator = "")
-  val gammaRateAsInt = gammaRateAsBinary.toInt(2)
-
-  // actually this is the inverse of the gamma rate, could use binary unary operation
-  val epsilonRate = this.bits.map {
-    if (it.zeroCount < it.oneCount) 0 else 1
-  }.joinToString("").toInt(2)
-
-  return gammaRateAsInt * epsilonRate
-}
-
-private operator fun State.plus(newState: State): State {
-  return State(bits = this.bits.zip(newState.bits).map { (oldBit, newBit) -> oldBit + newBit })
-}
-
-private operator fun State.Bit.plus(newBit: State.Bit): State.Bit {
-  return State.Bit(
-    zeroCount = this.zeroCount + newBit.zeroCount,
-    oneCount = this.oneCount + newBit.oneCount,
-  )
-}
-
-private fun String.mapToState(): State {
-  return State(
-    bits = this.split("")
-      .filterNot { it.isBlank() }
-      .map {
-        State.Bit(
-          zeroCount = if (it == "0") 1 else 0,
-          oneCount = if (it == "1") 1 else 0
-        )
-      }
-  )
-}
-
-data class State(
-  val bits: List<Bit> = emptyList()
-) {
-  data class Bit(
-    val zeroCount: Int,
-    val oneCount: Int,
-  ) {
-    fun toInt() = if (oneCount == 1) 1 else 0
-    override fun toString() = toInt().toString()
+  private fun State.Bit.highestCount(): Int {
+    return if (this.oneCount < this.zeroCount) 0 else 1
   }
 
-  override fun toString() = bits.joinToString("") { it.toString() }
+  private fun State.Bit.lowestCount(): Int {
+    return if (this.oneCount < this.zeroCount) 1 else 0
+  }
 
-  fun toInt() = this.toString().toInt(2)
+  private fun State.mapToPowerConsumption(): Int {
+    val gammaRateAsBinary = this.bits.map { if (it.zeroCount > it.oneCount) 0 else 1 }.joinToString(separator = "")
+    val gammaRateAsInt = gammaRateAsBinary.toInt(2)
+
+    // actually this is the inverse of the gamma rate, could use binary unary operation
+    val epsilonRate = this.bits.map {
+      if (it.zeroCount < it.oneCount) 0 else 1
+    }.joinToString("").toInt(2)
+
+    return gammaRateAsInt * epsilonRate
+  }
+
+  private operator fun State.plus(newState: State): State {
+    return State(bits = this.bits.zip(newState.bits).map { (oldBit, newBit) -> oldBit + newBit })
+  }
+
+  private operator fun State.Bit.plus(newBit: State.Bit): State.Bit {
+    return State.Bit(
+      zeroCount = this.zeroCount + newBit.zeroCount,
+      oneCount = this.oneCount + newBit.oneCount,
+    )
+  }
+
+  private fun String.mapToState(): State {
+    return State(
+      bits = this.split("")
+        .filterNot { it.isBlank() }
+        .map {
+          State.Bit(
+            zeroCount = if (it == "0") 1 else 0,
+            oneCount = if (it == "1") 1 else 0
+          )
+        }
+    )
+  }
+
+  data class State(
+    val bits: List<Bit> = emptyList()
+  ) {
+    data class Bit(
+      val zeroCount: Int,
+      val oneCount: Int,
+    ) {
+      fun toInt() = if (oneCount == 1) 1 else 0
+      override fun toString() = toInt().toString()
+    }
+
+    override fun toString() = bits.joinToString("") { it.toString() }
+
+    fun toInt() = this.toString().toInt(2)
+  }
 }
