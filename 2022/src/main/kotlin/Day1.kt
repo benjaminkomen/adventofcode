@@ -12,7 +12,12 @@ object Day1 {
   }
 
   fun part1(input: String): Int {
-    return -1
+    return input.split(Regex.fromLiteral("\n\n"))
+      .map { singleElfInput -> singleElfInput
+        .split(Regex.fromLiteral("\n"))
+        .sumOf { it.trim().toInt() }
+      }
+      .max()
   }
 
   fun part2(input: String): Int {
